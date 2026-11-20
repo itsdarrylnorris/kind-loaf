@@ -53,6 +53,9 @@ fill("<body>", "<body data-pre>");
 const waDigits = String(M.whatsapp).replace(/\D/g, "");
 page = page.replace(/https:\/\/wa\.me\/\d+"/g, "https://wa.me/" + waDigits + '"');
 
+// Embed the tiny logo font (3 KB) so the logo never waits on a second request
+fill("url(fonts/sacramento-logo.woff2)", "url(data:font/woff2;base64," + fs.readFileSync(path.join(root, "fonts", "sacramento-logo.woff2")).toString("base64") + ")");
+
 // Inline the scripts (one request instead of three)
 const safe = (js) => js.replace(/<\/script/gi, "<\\/script");
 fill('<script src="menu.js"></script>\n<script src="app.js"></script>', "<script>\n" + safe(menuSrc) + "\n" + safe(appSrc) + "\n</script>");

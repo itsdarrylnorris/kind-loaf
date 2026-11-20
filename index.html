@@ -30,13 +30,14 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preload" href="fonts/oswald-700.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-@font-face{font-family:"Montserrat";src:url(fonts/montserrat.woff2) format("woff2");font-weight:400 700;font-display:swap}
+/* Montserrat loads after first paint (app.js). Until then this Arial-based fallback is sized to match it, so text does not jump. */
+@font-face{font-family:"Montserrat Fallback";src:local("Arial");size-adjust:112.83%;ascent-override:85.79%;descent-override:22.24%;line-gap-override:0%}
 @font-face{font-family:"Oswald";src:url(fonts/oswald-700.woff2) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"Sacramento";src:url(fonts/sacramento-logo.woff2) format("woff2");font-weight:400;font-display:swap}
 :root{
   --cream:#FBF7F2; --paper:#FFFFFF; --mocha:#5E3F39; --mocha-dk:#452C27; --taupe:#C9AFA6; --taupe-lt:#EBDDD6;
   --ink:#3B2723; --muted:#7A625C; --ok:#2F7A4B; --warn:#A8432F;
-  --display:"Oswald","Arial Narrow",Impact,sans-serif; --body:"Montserrat",system-ui,-apple-system,sans-serif;
+  --display:"Oswald","Arial Narrow",Impact,sans-serif; --body:"Montserrat","Montserrat Fallback",system-ui,-apple-system,sans-serif;
   --script:"Sacramento","Brush Script MT",cursive;
   color-scheme:light;
 }

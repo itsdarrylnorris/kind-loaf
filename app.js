@@ -471,6 +471,16 @@
     document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
   });
 
+  // Body font: loaded after the page has painted, so it never delays the first view
+  function loadBodyFont() {
+    if (!window.FontFace || !document.fonts || !window.fetch) return;
+    // fetched as low-priority data (not a font request), so it never competes with the first view
+    fetch("fonts/montserrat.woff2", { priority: "low" }).then(function (r) { return r.arrayBuffer(); }).then(function (buf) {
+      return new FontFace("Montserrat", buf, { weight: "400 700" }).load();
+    }).then(function (f) { document.fonts.add(f); }, function () {});
+  }
+  if (document.readyState === "complete") loadBodyFont(); else window.addEventListener("load", loadBodyFont);
+
   renderAll();
   setInterval(tick, 30000);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
