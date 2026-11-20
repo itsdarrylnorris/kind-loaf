@@ -28,6 +28,8 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.5 var(--body);padding-bottom:88px}
 img{display:block;max-width:100%;height:auto}
 button,input,textarea{font:inherit;color:inherit}
+body::before{content:"";position:fixed;z-index:-1;pointer-events:none;right:-18vw;top:22vh;width:min(560px,105vw);aspect-ratio:1;background:url(img/bg-basket.svg) no-repeat center/contain;opacity:.06}
+@media (min-width:760px){body::before{right:-60px;top:auto;bottom:-40px;width:520px}}
 .wrap{max-width:1040px;margin:0 auto;padding:0 16px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
@@ -94,6 +96,14 @@ textarea{min-height:80px;resize:vertical}
 .btn svg{width:22px;height:22px}
 .note{font-size:13px;color:var(--muted);margin:12px 0 0;text-align:center}
 .err{color:var(--warn);font-size:14px;font-weight:600;margin:10px 0 0;min-height:1em}
+.upsell{display:flex;align-items:center;gap:12px;margin-top:20px;padding:12px;border:2px dashed var(--taupe);border-radius:16px;background:var(--cream)}
+.upsell img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:3px solid #fff;box-shadow:0 0 0 2px var(--taupe);flex:none}
+.upsell .ut{flex:1;min-width:0}
+.upsell .uh{font:700 13px/1.2 var(--display);text-transform:uppercase;letter-spacing:.04em;color:var(--mocha)}
+.upsell .un{font-weight:600;font-size:15px;line-height:1.25;margin-top:2px}
+.upsell .up{font-size:13px;color:var(--muted)}
+.upsell button{flex:none;border:0;border-radius:999px;background:var(--mocha);color:var(--cream);font-weight:700;padding:10px 16px;min-height:44px;cursor:pointer}
+.upsell[hidden],.closed .upsell{display:none}
 .closedmsg{display:none;background:var(--taupe-lt);color:var(--mocha-dk);border-radius:14px;padding:14px;font-weight:600;margin-top:16px}
 .closed .closedmsg{display:block}
 
@@ -181,6 +191,7 @@ html{scroll-behavior:smooth}
           <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required>
           <label for="notes" data-t="notes">Notes (optional)</label>
           <textarea id="notes" name="notes" data-tp="notesPh"></textarea>
+          <div class="upsell" id="upsell" hidden></div>
           <p class="err" id="err" role="alert"></p>
           <button class="btn" id="send" type="submit">
             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>

@@ -21,6 +21,7 @@
       add: "Add one", remove: "Remove one",
       errEmpty: "Please add at least one item.", errName: "Please enter your name.",
       errPhone: "Please enter a valid phone number.", errClosed: "Sorry, orders for this week are closed.",
+      upBread: "Add some fresh bread?", upSweet: "Add something sweet?", upPair: "Goes great with your order", upAdd: "+ Add",
       msgTitle: "New order", msgName: "Name", msgPhone: "Phone", msgNotes: "Notes", msgSent: "Sent"
     },
     es: {
@@ -39,6 +40,7 @@
       add: "Agregar uno", remove: "Quitar uno",
       errEmpty: "Agrega al menos un producto.", errName: "Escribe tu nombre.",
       errPhone: "Escribe un número de teléfono válido.", errClosed: "Lo sentimos, las órdenes de esta semana están cerradas.",
+      upBread: "¿Le agregas pan fresco?", upSweet: "¿Algo dulce para acompañar?", upPair: "Va perfecto con tu orden", upAdd: "+ Agregar",
       msgTitle: "Nueva orden", msgName: "Nombre", msgPhone: "Teléfono", msgNotes: "Notas", msgSent: "Enviada"
     }
   };
@@ -96,6 +98,51 @@
     return { n: n, sum: sum };
   }
 
+  // Upsell: suggest one item based on what's in the cart.
+  // 1) If the cart has only bread (or only sweets), suggest something from the other category.
+  // 2) Otherwise suggest the best "pairs" match (from menu.js) of the items they bought the most of.
+  function pickUpsell() {
+    var ids = Object.keys(cart);
+    if (!ids.length) return null;
+    ids.sort(function (a, b) { return cart[b] - cart[a]; });
+    var cands = [];
+    ids.forEach(function (id) {
+      (byId[id].pairs || []).forEach(function (p) { if (byId[p] && !cart[p] && cands.indexOf(p) < 0) cands.push(p); });
+    });
+    var has = {};
+    ids.forEach(function (id) { has[byId[id].category] = true; });
+    var missing = !has.bread ? "bread" : !has.sweet ? "sweet" : null;
+    if (missing) {
+      var m = cands.filter(function (id) { return byId[id].category === missing; })[0] ||
+        items.filter(function (i) { return i.category === missing && !cart[i.id]; }).map(function (i) { return i.id; })[0];
+      if (m) return { id: m, kind: missing };
+    }
+    var c = cands[0] || items.filter(function (i) { return !cart[i.id]; }).map(function (i) { return i.id; })[0];
+    return c ? { id: c, kind: "pair" } : null;
+  }
+
+  function renderUpsell() {
+    var box = $("upsell"), u = pickUpsell(), t = T[lang];
+    if (!u) { box.hidden = true; box.innerHTML = ""; return; }
+    var i = byId[u.id];
+    var head = u.kind === "bread" ? t.upBread : u.kind === "sweet" ? t.upSweet : t.upPair;
+    box.innerHTML = '<picture><source type="image/webp" srcset="img/' + i.img + '-480.webp"><img src="img/' + i.img +
+      '-480.jpg" alt="" width="64" height="64" loading="lazy" decoding="async"></picture>' +
+      '<div class="ut"><div class="uh">' + head + '</div><div class="un">' + i.name[lang] + '</div>' +
+      '<div class="up">' + i.unit[lang] + ' · ' + money(i.price) + '</div></div>' +
+      '<button type="button" data-up="' + i.id + '">' + t.upAdd + '</button>';
+    box.hidden = false;
+  }
+
+  function setQty(id, q) {
+    q = Math.max(0, Math.min(99, q));
+    if (q) cart[id] = q; else delete cart[id];
+    var card = document.querySelector('.card[data-id="' + id + '"]');
+    if (card) { card.querySelector("output").textContent = q; card.classList.toggle("in", q > 0); }
+    save(); renderOrder();
+    $("err").textContent = "";
+  }
+
   function renderOrder() {
     var t = T[lang], ids = Object.keys(cart);
     $("lines").innerHTML = ids.length ? ids.map(function (id) {
@@ -107,6 +154,7 @@
     $("barText").textContent = t.items(s.n) + " · " + money(s.sum);
     $("bar").classList.toggle("show", s.n > 0 && isOpen());
     $("bar").setAttribute("aria-hidden", s.n > 0 ? "false" : "true");
+    renderUpsell();
   }
 
   function renderText() {
@@ -142,17 +190,15 @@
 
   function save() { store(cartKey, JSON.stringify(cart)); }
 
-  // Quantity buttons
+  // Quantity buttons and upsell "Add"
   document.addEventListener("click", function (e) {
+    if (!isOpen()) return;
+    var up = e.target.closest("[data-up]");
+    if (up) { var uid = up.getAttribute("data-up"); setQty(uid, (cart[uid] || 0) + 1); return; }
     var b = e.target.closest(".qty button");
-    if (!b || !isOpen()) return;
-    var card = b.closest(".card"), id = card.getAttribute("data-id");
-    var q = Math.max(0, Math.min(99, (cart[id] || 0) + Number(b.getAttribute("data-d"))));
-    if (q) cart[id] = q; else delete cart[id];
-    card.querySelector("output").textContent = q;
-    card.classList.toggle("in", q > 0);
-    save(); renderOrder();
-    $("err").textContent = "";
+    if (!b) return;
+    var id = b.closest(".card").getAttribute("data-id");
+    setQty(id, (cart[id] || 0) + Number(b.getAttribute("data-d")));
   });
 
   // Language toggle
