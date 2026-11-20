@@ -1,0 +1,199 @@
+(function () {
+  "use strict";
+  var M = window.MENU;
+  var TZ = "America/Chicago";
+  var deadline = new Date(M.deadline).getTime();
+
+  var T = {
+    en: {
+      headline: "Sweet deals are here!",
+      lede: "Your favorite wafers and bread at a sweeter price!",
+      ordersUntil: "Taking orders until",
+      closedTitle: "Orders are closed",
+      closedMsg: "Orders for this week are closed. Check back soon for next week's menu!",
+      breads: "Breads", sweets: "Wafers & Sweets", yourOrder: "Your order", total: "Total",
+      name: "Your name", phone: "Phone number", notes: "Notes (optional)",
+      notesPh: "Allergies, pickup time, anything else...",
+      send: "Send order on WhatsApp", review: "Review order", flyer: "See this week's flyer",
+      empty: "Add items from the menu above.", central: "Central time",
+      left: function (d, h, m) { return (d ? d + "d " : "") + h + "h " + m + "m left to order"; },
+      items: function (n) { return n + (n === 1 ? " item" : " items"); },
+      add: "Add one", remove: "Remove one",
+      errEmpty: "Please add at least one item.", errName: "Please enter your name.",
+      errPhone: "Please enter a valid phone number.", errClosed: "Sorry, orders for this week are closed.",
+      msgTitle: "New order", msgName: "Name", msgPhone: "Phone", msgNotes: "Notes", msgSent: "Sent"
+    },
+    es: {
+      headline: "¡Llegaron las ofertas dulces!",
+      lede: "¡Tus wafers y panes favoritos a un precio más dulce!",
+      ordersUntil: "Tomo órdenes hasta el",
+      closedTitle: "Órdenes cerradas",
+      closedMsg: "Las órdenes de esta semana están cerradas. ¡Vuelve pronto para ver el menú de la próxima semana!",
+      breads: "Panes", sweets: "Galletas y dulces", yourOrder: "Tu orden", total: "Total",
+      name: "Tu nombre", phone: "Número de teléfono", notes: "Notas (opcional)",
+      notesPh: "Alergias, hora de recogida, algo más...",
+      send: "Enviar orden por WhatsApp", review: "Ver orden", flyer: "Ver el flyer de esta semana",
+      empty: "Agrega productos del menú.", central: "hora del Centro",
+      left: function (d, h, m) { return "Quedan " + (d ? d + "d " : "") + h + "h " + m + "m para ordenar"; },
+      items: function (n) { return n + (n === 1 ? " producto" : " productos"); },
+      add: "Agregar uno", remove: "Quitar uno",
+      errEmpty: "Agrega al menos un producto.", errName: "Escribe tu nombre.",
+      errPhone: "Escribe un número de teléfono válido.", errClosed: "Lo sentimos, las órdenes de esta semana están cerradas.",
+      msgTitle: "Nueva orden", msgName: "Nombre", msgPhone: "Teléfono", msgNotes: "Notas", msgSent: "Enviada"
+    }
+  };
+
+  function store(k, v) {
+    try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; }
+  }
+
+  var lang = store("skl-lang") || ((navigator.language || "en").toLowerCase().indexOf("es") === 0 ? "es" : "en");
+  var items = M.items.filter(function (i) { return i.active; });
+  var byId = {};
+  items.forEach(function (i) { byId[i.id] = i; });
+
+  // Cart is tied to this week's deadline so old carts don't carry over
+  var cartKey = "skl-cart-" + M.deadline;
+  var cart = {};
+  try { cart = JSON.parse(store(cartKey) || "{}") || {}; } catch (e) { cart = {}; }
+  Object.keys(cart).forEach(function (id) { if (!byId[id] || !(cart[id] > 0)) delete cart[id]; });
+
+  var $ = function (id) { return document.getElementById(id); };
+  var money = function (n) {
+    return new Intl.NumberFormat(lang === "es" ? "es-US" : "en-US", { style: "currency", currency: "USD" }).format(n);
+  };
+  var isOpen = function () { return Date.now() < deadline; };
+
+  function img(i) {
+    var b = "img/" + i.img;
+    return '<picture><source type="image/webp" srcset="' + b + '-480.webp 480w, ' + b + '-960.webp 960w" ' +
+      'sizes="(min-width: 760px) 220px, 46vw">' +
+      '<img src="' + b + '-480.jpg" width="' + i.w + '" height="' + i.h + '" loading="lazy" decoding="async" alt=""></picture>';
+  }
+
+  function renderMenu() {
+    var t = T[lang], html = { bread: "", sweet: "" };
+    items.forEach(function (i) {
+      var q = cart[i.id] || 0;
+      html[i.category] += '<article class="card' + (q ? " in" : "") + '" data-id="' + i.id + '">' +
+        '<div class="frame"><div class="ph">' + img(i) + '</div></div>' +
+        '<div class="body"><h3>' + i.name[lang] + '</h3><div class="unit">' + i.unit[lang] + '</div>' +
+        '<p class="desc">' + i.desc[lang] + '</p>' +
+        '<div class="row"><span class="price">' + money(i.price) + '</span>' +
+        '<div class="qty"><button type="button" data-d="-1" aria-label="' + t.remove + ': ' + i.name[lang] + '">−</button>' +
+        '<output aria-live="polite">' + q + '</output>' +
+        '<button type="button" data-d="1" aria-label="' + t.add + ': ' + i.name[lang] + '">+</button></div></div></div></article>';
+    });
+    $("grid-bread").innerHTML = html.bread;
+    $("grid-sweet").innerHTML = html.sweet;
+    $("h-bread").parentNode.hidden = !html.bread;
+    $("h-sweet").parentNode.hidden = !html.sweet;
+  }
+
+  function totals() {
+    var n = 0, sum = 0;
+    Object.keys(cart).forEach(function (id) { n += cart[id]; sum += cart[id] * byId[id].price; });
+    return { n: n, sum: sum };
+  }
+
+  function renderOrder() {
+    var t = T[lang], ids = Object.keys(cart);
+    $("lines").innerHTML = ids.length ? ids.map(function (id) {
+      var i = byId[id];
+      return "<li><span>" + cart[id] + " × " + i.name[lang] + "</span><span>" + money(cart[id] * i.price) + "</span></li>";
+    }).join("") : '<li class="empty">' + t.empty + "</li>";
+    var s = totals();
+    $("total").textContent = money(s.sum);
+    $("barText").textContent = t.items(s.n) + " · " + money(s.sum);
+    $("bar").classList.toggle("show", s.n > 0 && isOpen());
+    $("bar").setAttribute("aria-hidden", s.n > 0 ? "false" : "true");
+  }
+
+  function renderText() {
+    var t = T[lang];
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-t]").forEach(function (el) { el.textContent = t[el.getAttribute("data-t")]; });
+    document.querySelectorAll("[data-tp]").forEach(function (el) { el.placeholder = t[el.getAttribute("data-tp")]; });
+    document.querySelectorAll(".lang button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang));
+    });
+    var when = new Intl.DateTimeFormat(lang === "es" ? "es-MX" : "en-US", {
+      timeZone: TZ, weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit"
+    }).format(deadline);
+    $("when").textContent = " " + when + " (" + t.central + ")";
+    $("week").textContent = M.week[lang];
+    $("pickup").textContent = M.pickup ? M.pickup[lang] : "";
+  }
+
+  function tick() {
+    var t = T[lang], open = isOpen(), left = deadline - Date.now();
+    document.body.classList.toggle("closed", !open);
+    if (open) {
+      var d = Math.floor(left / 864e5), h = Math.floor(left / 36e5) % 24, m = Math.floor(left / 6e4) % 60;
+      $("count").textContent = t.left(d, h, m);
+    } else {
+      $("count").textContent = t.closedTitle;
+    }
+    document.querySelectorAll(".qty button, #form input, #form textarea, #send").forEach(function (el) { el.disabled = !open; });
+    if (!open) $("bar").classList.remove("show");
+  }
+
+  function renderAll() { renderText(); renderMenu(); renderOrder(); tick(); }
+
+  function save() { store(cartKey, JSON.stringify(cart)); }
+
+  // Quantity buttons
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".qty button");
+    if (!b || !isOpen()) return;
+    var card = b.closest(".card"), id = card.getAttribute("data-id");
+    var q = Math.max(0, Math.min(99, (cart[id] || 0) + Number(b.getAttribute("data-d"))));
+    if (q) cart[id] = q; else delete cart[id];
+    card.querySelector("output").textContent = q;
+    card.classList.toggle("in", q > 0);
+    save(); renderOrder();
+    $("err").textContent = "";
+  });
+
+  // Language toggle
+  document.querySelectorAll(".lang button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      lang = b.getAttribute("data-lang"); store("skl-lang", lang); renderAll();
+    });
+  });
+
+  // Send order
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var t = T[lang], err = $("err");
+    var name = $("name").value.trim(), phone = $("phone").value.trim(), notes = $("notes").value.trim();
+    var s = totals();
+    if (!isOpen()) { tick(); err.textContent = t.errClosed; return; }
+    if (!s.n) { err.textContent = t.errEmpty; return; }
+    if (!name) { err.textContent = t.errName; $("name").focus(); return; }
+    if (phone.replace(/\D/g, "").length < 10) { err.textContent = t.errPhone; $("phone").focus(); return; }
+    err.textContent = "";
+
+    var sent = new Intl.DateTimeFormat(lang === "es" ? "es-MX" : "en-US", {
+      timeZone: TZ, weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+    }).format(Date.now());
+    var lines = [t.msgTitle + " - Simply Kind Loaf (" + M.week[lang] + ")", "",
+      t.msgName + ": " + name, t.msgPhone + ": " + phone, ""];
+    Object.keys(cart).forEach(function (id) {
+      var i = byId[id];
+      lines.push("- " + cart[id] + " x " + i.name[lang] + " (" + i.unit[lang] + ") = " + money(cart[id] * i.price));
+    });
+    lines.push("", t.total + ": " + money(s.sum));
+    if (notes) lines.push(t.msgNotes + ": " + notes);
+    lines.push("", t.msgSent + ": " + sent + " (" + t.central + ")");
+
+    var url = "https://wa.me/" + String(M.whatsapp).replace(/\D/g, "") + "?text=" + encodeURIComponent(lines.join("\n"));
+    // Cart is kept so nothing is lost if WhatsApp doesn't open; it resets automatically next week
+    window.SKL_LAST_URL = url;
+    if (!window.SKL_TEST) window.location.href = url;
+  });
+
+  renderAll();
+  setInterval(tick, 30000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) tick(); });
+})();

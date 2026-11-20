@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simply Kind Loaf</title>
+<meta name="description" content="Homemade panecitos and wafers. See this week's menu and order before the deadline.">
+<meta name="theme-color" content="#FBF7F2">
+<meta property="og:title" content="Simply Kind Loaf">
+<meta property="og:description" content="This week's menu. Order before Friday 8pm.">
+<meta property="og:image" content="img/panecitos-bag-960.webp">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Montserrat:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap&text=kindloaf%20">
+<link rel="preload" as="image" href="img/panecitos-bag-480.webp" imagesrcset="img/panecitos-bag-480.webp 360w, img/panecitos-bag-960.webp 720w" imagesizes="(min-width: 760px) 340px, 70vw" fetchpriority="high">
+<style>
+:root{
+  --cream:#FBF7F2; --paper:#FFFFFF; --mocha:#5E3F39; --mocha-dk:#452C27; --taupe:#C9AFA6; --taupe-lt:#EBDDD6;
+  --ink:#3B2723; --muted:#7A625C; --ok:#2F7A4B; --warn:#A8432F;
+  --display:"Oswald","Arial Narrow",Impact,sans-serif; --body:"Montserrat",system-ui,-apple-system,sans-serif;
+  --script:"Sacramento","Brush Script MT",cursive;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.5 var(--body);padding-bottom:88px}
+img{display:block;max-width:100%;height:auto}
+button,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Header */
+header{padding:18px 0 6px;position:relative}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.brand{color:var(--mocha);line-height:.8;text-decoration:none;display:inline-block}
+.brand b{display:block;font:700 clamp(52px,15vw,84px)/.9 var(--display);letter-spacing:.01em}
+.brand i{display:block;font:400 clamp(58px,17vw,96px)/.6 var(--script);font-style:normal;margin:-6px 0 0 8px;white-space:nowrap}
+.brand svg{width:46px;height:46px;vertical-align:-6px;margin-left:-4px}
+.lang{display:inline-flex;border:2px solid var(--mocha);border-radius:999px;overflow:hidden;flex:none;margin-top:6px}
+.lang button{border:0;background:transparent;padding:8px 14px;min-height:40px;font-weight:700;font-size:14px;color:var(--mocha);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--mocha);color:var(--cream)}
+
+/* Hero */
+.hero{display:grid;gap:22px;padding:26px 0 8px}
+.hero h1{font:700 clamp(40px,11vw,64px)/.95 var(--display);color:var(--mocha);text-transform:uppercase;margin:0}
+.hero p.lede{font-weight:700;color:var(--mocha);font-size:18px;margin:12px 0 0}
+.frame{background:var(--taupe);border-radius:22px;padding:18px}
+.frame .ph{border:5px solid #fff;border-radius:14px;overflow:hidden;background:var(--taupe-lt);box-shadow:0 2px 10px rgba(69,44,39,.12)}
+.hero .frame{max-width:340px;justify-self:center;width:78%}
+.hero .frame img{aspect-ratio:3/4;object-fit:cover;width:100%}
+
+/* Deadline */
+.deadline{border-top:6px solid var(--mocha);margin-top:22px;padding:16px 4px 4px}
+.deadline .when{font-size:17px;color:var(--mocha);margin:0}
+.deadline .when strong{display:block;font:700 22px/1.2 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.count{display:inline-block;margin-top:10px;background:var(--mocha);color:var(--cream);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
+.closed .count{background:var(--warn)}
+.week{font-size:14px;color:var(--muted);margin:8px 0 0}
+
+/* Menu */
+h2{font:700 clamp(30px,8vw,40px)/1 var(--display);color:var(--mocha);text-transform:uppercase;margin:40px 0 6px}
+h2::after{content:"";display:block;width:120px;height:5px;background:var(--mocha);margin-top:10px}
+.grid{display:grid;gap:18px;margin-top:20px;grid-template-columns:1fr 1fr}
+.card{background:var(--paper);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(69,44,39,.1)}
+.card .frame{padding:8px;border-radius:0}
+.card .frame .ph{border-width:3px;border-radius:10px}
+.card img{aspect-ratio:1/1;object-fit:cover;width:100%}
+.card .body{padding:10px 12px 12px;display:flex;flex-direction:column;flex:1}
+.card h3{font:600 15px/1.25 var(--body);margin:0;color:var(--ink)}
+.card .unit{font-size:12px;color:var(--muted);margin-top:2px}
+.card .desc{display:none;font-size:14px;color:var(--muted);margin:6px 0 0}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto;padding-top:10px}
+.price{font:700 20px/1 var(--display);color:var(--mocha)}
+.qty{display:flex;align-items:center;border:2px solid var(--mocha);border-radius:999px}
+.qty button{width:34px;height:34px;border:0;background:none;font-size:20px;font-weight:700;color:var(--mocha);cursor:pointer;border-radius:999px;touch-action:manipulation}
+.qty button:disabled{opacity:.35;cursor:not-allowed}
+.qty output{min-width:20px;text-align:center;font-weight:700}
+.card.in{outline:3px solid var(--mocha)}
+
+/* Order */
+.order{background:var(--paper);border-radius:22px;padding:20px 16px;margin-top:20px;box-shadow:0 1px 3px rgba(69,44,39,.1)}
+.lines{list-style:none;margin:0;padding:0}
+.lines li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--taupe)}
+.lines .empty{color:var(--muted);justify-content:flex-start}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 6px;font:700 24px/1 var(--display);color:var(--mocha);text-transform:uppercase}
+label{display:block;font-weight:600;font-size:14px;margin:16px 0 6px;color:var(--mocha)}
+input,textarea{width:100%;border:2px solid var(--taupe);border-radius:12px;padding:12px;background:var(--cream);font-size:16px}
+input:focus,textarea:focus{outline:none;border-color:var(--mocha)}
+textarea{min-height:80px;resize:vertical}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:20px;border:0;border-radius:999px;padding:15px 20px;min-height:52px;background:var(--mocha);color:var(--cream);font-weight:700;font-size:17px;cursor:pointer;text-decoration:none}
+.btn:disabled{background:#B9A7A2;cursor:not-allowed}
+.btn svg{width:22px;height:22px}
+.note{font-size:13px;color:var(--muted);margin:12px 0 0;text-align:center}
+.err{color:var(--warn);font-size:14px;font-weight:600;margin:10px 0 0;min-height:1em}
+.closedmsg{display:none;background:var(--taupe-lt);color:var(--mocha-dk);border-radius:14px;padding:14px;font-weight:600;margin-top:16px}
+.closed .closedmsg{display:block}
+
+/* Sticky bar */
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--mocha-dk);color:var(--cream);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:12px;transform:translateY(110%);transition:transform .25s;z-index:10}
+.bar.show{transform:none}
+.bar span{font-weight:600}
+.bar a{background:var(--cream);color:var(--mocha-dk);text-decoration:none;font-weight:700;border-radius:999px;padding:10px 18px;white-space:nowrap}
+
+footer{text-align:center;padding:40px 0 20px;color:var(--muted);font-size:14px}
+.skl{width:96px;height:96px;margin:0 auto 10px}
+footer a{color:var(--mocha);font-weight:600}
+
+@media (min-width:760px){
+  body{padding-bottom:0}
+  .hero{grid-template-columns:1.1fr .9fr;align-items:center}
+  .hero .frame{width:100%}
+  .grid{grid-template-columns:repeat(3,1fr);gap:22px}
+  .card h3{font-size:17px}
+  .card .desc{display:block}
+  .layout{display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start}
+  .order-col{position:sticky;top:16px}
+  .bar{display:none}
+}
+@media (max-width:359px){.grid{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="top">
+    <a class="brand" href="./" aria-label="Simply Kind Loaf">
+      <b>SIMPLY</b>
+      <i>kind loaf<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 44C18 32 28 20 40 6"/><path d="M33 13c4-1 8 0 10 2-3 2-7 2-10-2zM33 13c-1-4 0-8 2-10 2 3 2 7-2 10zM26 21c4-1 8 0 10 2-3 2-7 2-10-2zM26 21c-1-4 0-8 2-10 2 3 2 7-2 10zM19 29c4-1 8 0 10 2-3 2-7 2-10-2zM19 29c-1-4 0-8 2-10 2 3 2 7-2 10z"/></svg></i>
+    </a>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <h1 data-t="headline">Sweet deals are here!</h1>
+      <p class="lede" data-t="lede">Your favorite wafers and bread at a sweeter price!</p>
+      <div class="deadline" id="deadline">
+        <p class="when"><strong data-t="ordersUntil">Taking orders until</strong><span id="when"></span></p>
+        <span class="count" id="count" aria-live="polite"></span>
+        <p class="week" id="week"></p>
+      </div>
+    </div>
+    <div class="frame"><div class="ph">
+      <picture>
+        <source type="image/webp" srcset="img/panecitos-bag-480.webp 360w, img/panecitos-bag-960.webp 720w" sizes="(min-width: 760px) 340px, 70vw">
+        <img src="img/panecitos-bag-480.jpg" width="360" height="480" alt="Bags of homemade panecitos and wafers" fetchpriority="high">
+      </picture>
+    </div></div>
+  </section>
+
+  <div class="layout">
+    <div>
+      <section aria-labelledby="h-bread">
+        <h2 id="h-bread" data-t="breads">Breads</h2>
+        <div class="grid" id="grid-bread"></div>
+      </section>
+      <section aria-labelledby="h-sweet">
+        <h2 id="h-sweet" data-t="sweets">Wafers &amp; Sweets</h2>
+        <div class="grid" id="grid-sweet"></div>
+      </section>
+    </div>
+
+    <div class="order-col">
+      <section id="order" aria-labelledby="h-order">
+        <h2 id="h-order" data-t="yourOrder">Your order</h2>
+        <form class="order" id="form" novalidate>
+          <ul class="lines" id="lines"></ul>
+          <div class="total"><span data-t="total">Total</span><span id="total">$0.00</span></div>
+          <div class="closedmsg" data-t="closedMsg">Orders for this week are closed. Check back soon for next week's menu!</div>
+          <label for="name" data-t="name">Your name</label>
+          <input id="name" name="name" autocomplete="name" required>
+          <label for="phone" data-t="phone">Phone number</label>
+          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required>
+          <label for="notes" data-t="notes">Notes (optional)</label>
+          <textarea id="notes" name="notes" data-tp="notesPh"></textarea>
+          <p class="err" id="err" role="alert"></p>
+          <button class="btn" id="send" type="submit">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+            <span data-t="send">Send order on WhatsApp</span>
+          </button>
+          <p class="note" id="pickup"></p>
+        </form>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">
+  <svg class="skl" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="#5E3F39" stroke-width="2"/><text x="50" y="60" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="28" fill="#3B2723">SKL</text></svg>
+  <p><a href="img/flyer.webp" target="_blank" rel="noopener" data-t="flyer">See this week's flyer</a></p>
+  <p>&copy; Simply Kind Loaf</p>
+</footer>
+
+<div class="bar" id="bar" aria-hidden="true">
+  <span id="barText"></span>
+  <a href="#order" data-t="review">Review order</a>
+</div>
+
+<script src="menu.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
