@@ -22,6 +22,8 @@
       errEmpty: "Please add at least one item.", errName: "Please enter your name.",
       errPhone: "Please enter a valid phone number.", errClosed: "Sorry, orders for this week are closed.",
       upBread: "Add some fresh bread?", upSweet: "Add something sweet?", upPair: "Goes great with your order", upAdd: "+ Add",
+      askTitle: "Before you send...", askText: function (n) { return "Are you sure you don't want to add " + n + "?"; },
+      askYes: function (p) { return "Yes, add it (+" + p + ")"; }, askNo: "No thanks, send my order", view: "View photo", close: "Close",
       msgTitle: "New order", msgName: "Name", msgPhone: "Phone", msgNotes: "Notes", msgSent: "Sent"
     },
     es: {
@@ -41,6 +43,8 @@
       errEmpty: "Agrega al menos un producto.", errName: "Escribe tu nombre.",
       errPhone: "Escribe un número de teléfono válido.", errClosed: "Lo sentimos, las órdenes de esta semana están cerradas.",
       upBread: "¿Le agregas pan fresco?", upSweet: "¿Algo dulce para acompañar?", upPair: "Va perfecto con tu orden", upAdd: "+ Agregar",
+      askTitle: "Antes de enviar...", askText: function (n) { return "¿Seguro que no quieres agregar " + n + "?"; },
+      askYes: function (p) { return "Sí, agrégalo (+" + p + ")"; }, askNo: "No, gracias, enviar mi orden", view: "Ver foto", close: "Cerrar",
       msgTitle: "Nueva orden", msgName: "Nombre", msgPhone: "Teléfono", msgNotes: "Notas", msgSent: "Enviada"
     }
   };
@@ -66,19 +70,20 @@
   };
   var isOpen = function () { return Date.now() < deadline; };
 
-  function img(i) {
+  function img(i, eager) {
     var b = "img/" + i.img;
     return '<picture><source type="image/webp" srcset="' + b + '-480.webp 480w, ' + b + '-960.webp 960w" ' +
       'sizes="(min-width: 760px) 220px, 46vw">' +
-      '<img src="' + b + '-480.jpg" width="' + i.w + '" height="' + i.h + '" loading="lazy" decoding="async" alt=""></picture>';
+      '<img src="' + b + '-480.jpg" width="' + i.w + '" height="' + i.h + '" ' +
+      (eager ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"') + ' alt="' + i.name[lang] + '"></picture>';
   }
 
   function renderMenu() {
     var t = T[lang], html = { bread: "", sweet: "" };
-    items.forEach(function (i) {
+    items.forEach(function (i, n) {
       var q = cart[i.id] || 0;
       html[i.category] += '<article class="card' + (q ? " in" : "") + '" data-id="' + i.id + '">' +
-        '<div class="frame"><div class="ph">' + img(i) + '</div></div>' +
+        '<div class="frame"><div class="ph"><button type="button" class="zoom" data-zoom="' + i.id + '" aria-label="' + t.view + ': ' + i.name[lang] + '">' + img(i, n < 2) + '</button></div></div>' +
         '<div class="body"><h3>' + i.name[lang] + '</h3><div class="unit">' + i.unit[lang] + '</div>' +
         '<p class="desc">' + i.desc[lang] + '</p>' +
         '<div class="row"><span class="price">' + money(i.price) + '</span>' +
@@ -126,8 +131,8 @@
     if (!u) { box.hidden = true; box.innerHTML = ""; return; }
     var i = byId[u.id];
     var head = u.kind === "bread" ? t.upBread : u.kind === "sweet" ? t.upSweet : t.upPair;
-    box.innerHTML = '<picture><source type="image/webp" srcset="img/' + i.img + '-480.webp"><img src="img/' + i.img +
-      '-480.jpg" alt="" width="64" height="64" loading="lazy" decoding="async"></picture>' +
+    box.innerHTML = '<button type="button" class="zoom" data-zoom="' + i.id + '" aria-label="' + t.view + ': ' + i.name[lang] + '"><picture><source type="image/webp" srcset="img/' + i.img + '-480.webp"><img src="img/' + i.img +
+      '-480.jpg" alt="" width="64" height="64" loading="lazy" decoding="async"></picture></button>' +
       '<div class="ut"><div class="uh">' + head + '</div><div class="un">' + i.name[lang] + '</div>' +
       '<div class="up">' + i.unit[lang] + ' · ' + money(i.price) + '</div></div>' +
       '<button type="button" data-up="' + i.id + '">' + t.upAdd + '</button>';
@@ -192,6 +197,8 @@
 
   // Quantity buttons and upsell "Add"
   document.addEventListener("click", function (e) {
+    var z = e.target.closest("[data-zoom]");
+    if (z) { openPhoto(z.getAttribute("data-zoom")); return; }
     if (!isOpen()) return;
     var up = e.target.closest("[data-up]");
     if (up) { var uid = up.getAttribute("data-up"); setQty(uid, (cart[uid] || 0) + 1); return; }
@@ -208,18 +215,27 @@
     });
   });
 
-  // Send order
-  $("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var t = T[lang], err = $("err");
-    var name = $("name").value.trim(), phone = $("phone").value.trim(), notes = $("notes").value.trim();
-    var s = totals();
-    if (!isOpen()) { tick(); err.textContent = t.errClosed; return; }
-    if (!s.n) { err.textContent = t.errEmpty; return; }
-    if (!name) { err.textContent = t.errName; $("name").focus(); return; }
-    if (phone.replace(/\D/g, "").length < 10) { err.textContent = t.errPhone; $("phone").focus(); return; }
-    err.textContent = "";
+  // Photo viewer
+  function openPhoto(id) {
+    var i = byId[id], d = $("lb");
+    $("lbImg").src = "img/" + i.img + "-960.webp";
+    $("lbImg").alt = i.name[lang];
+    $("lbName").textContent = i.name[lang];
+    $("lbPrice").textContent = money(i.price);
+    d.querySelector(".x").setAttribute("aria-label", T[lang].close);
+    d.showModal();
+  }
+  ["lb", "ask"].forEach(function (id) {
+    var d = $(id);
+    d.addEventListener("click", function (e) { if (e.target === d || e.target.hasAttribute("data-close")) d.close(); });
+  });
 
+  // Send order
+  var asked = false; // only ask once, so it never gets annoying
+
+  function sendOrder() {
+    var t = T[lang], s = totals();
+    var name = $("name").value.trim(), phone = $("phone").value.trim(), notes = $("notes").value.trim();
     var sent = new Intl.DateTimeFormat(lang === "es" ? "es-MX" : "en-US", {
       timeZone: TZ, weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
     }).format(Date.now());
@@ -237,6 +253,34 @@
     // Cart is kept so nothing is lost if WhatsApp doesn't open; it resets automatically next week
     window.SKL_LAST_URL = url;
     if (!window.SKL_TEST) window.location.href = url;
+  }
+
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var t = T[lang], err = $("err");
+    var name = $("name").value.trim(), phone = $("phone").value.trim();
+    if (!isOpen()) { tick(); err.textContent = t.errClosed; return; }
+    if (!totals().n) { err.textContent = t.errEmpty; return; }
+    if (!name) { err.textContent = t.errName; $("name").focus(); return; }
+    if (phone.replace(/\D/g, "").length < 10) { err.textContent = t.errPhone; $("phone").focus(); return; }
+    err.textContent = "";
+
+    // Last-chance upsell
+    var u = pickUpsell();
+    if (u && !asked) {
+      asked = true;
+      var i = byId[u.id];
+      $("askImg").src = "img/" + i.img + "-480.webp";
+      $("askTitle").textContent = t.askTitle;
+      $("askText").textContent = t.askText(i.name[lang]);
+      $("askYes").textContent = t.askYes(money(i.price));
+      $("askNo").textContent = t.askNo;
+      $("askYes").onclick = function () { setQty(i.id, (cart[i.id] || 0) + 1); $("ask").close(); sendOrder(); };
+      $("askNo").onclick = function () { $("ask").close(); sendOrder(); };
+      $("ask").showModal();
+      return;
+    }
+    sendOrder();
   });
 
   renderAll();

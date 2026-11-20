@@ -3,18 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Simply Kind Loaf</title>
-<meta name="description" content="Homemade panecitos and wafers. See this week's menu and order before the deadline.">
+<title>Simply Kind Loaf | Homemade Panecitos &amp; Sourdough Wafers</title>
+<meta name="description" content="Homemade panecitos, sourdough wafers and sweet bites, baked fresh every week. See this week's menu and order on WhatsApp before Friday 8pm. Pan casero hecho a mano, ordena por WhatsApp.">
+<link rel="canonical" href="https://itsdarrylnorris.github.io/kind-loaf/">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <meta name="theme-color" content="#FBF7F2">
-<meta property="og:title" content="Simply Kind Loaf">
-<meta property="og:description" content="This week's menu. Order before Friday 8pm.">
-<meta property="og:image" content="img/panecitos-bag-960.webp">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Simply Kind Loaf">
+<meta property="og:url" content="https://itsdarrylnorris.github.io/kind-loaf/">
+<meta property="og:title" content="Simply Kind Loaf | This week's menu">
+<meta property="og:description" content="Homemade panecitos and sourdough wafers, baked fresh every week. Order on WhatsApp before Friday 8pm. / Pan casero, ordena por WhatsApp.">
+<meta property="og:image" content="https://itsdarrylnorris.github.io/kind-loaf/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Fresh everything bagel panecitos from Simply Kind Loaf">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="es_MX">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Simply Kind Loaf | This week's menu">
+<meta name="twitter:description" content="Homemade panecitos and sourdough wafers, baked fresh every week. Order on WhatsApp before Friday 8pm.">
+<meta name="twitter:image" content="https://itsdarrylnorris.github.io/kind-loaf/img/og.jpg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Bakery","name":"Simply Kind Loaf","alternateName":"SKL","url":"https://itsdarrylnorris.github.io/kind-loaf/","image":"https://itsdarrylnorris.github.io/kind-loaf/img/og.jpg","logo":"https://itsdarrylnorris.github.io/kind-loaf/apple-touch-icon.png","description":"Homemade panecitos, sourdough wafers and sweet bites, baked fresh every week and ordered on WhatsApp.","telephone":"+1-469-835-9836","servesCuisine":["Bakery","Bread","Cookies"],"priceRange":"$","knowsLanguage":["en","es"],"hasMenu":"https://itsdarrylnorris.github.io/kind-loaf/#h-bread","potentialAction":{"@type":"OrderAction","target":"https://itsdarrylnorris.github.io/kind-loaf/#order"}}
+</script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Montserrat:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap&text=kindloaf%20">
-<link rel="preload" as="image" href="img/panecitos-bag-480.webp" imagesrcset="img/panecitos-bag-480.webp 360w, img/panecitos-bag-960.webp 720w" imagesizes="(min-width: 760px) 340px, 70vw" fetchpriority="high">
 <style>
 :root{
   --cream:#FBF7F2; --paper:#FFFFFF; --mocha:#5E3F39; --mocha-dk:#452C27; --taupe:#C9AFA6; --taupe-lt:#EBDDD6;
@@ -34,37 +51,35 @@ body::before{content:"";position:fixed;z-index:-1;pointer-events:none;right:-18v
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* Header */
-header{padding:calc(40px + env(safe-area-inset-top)) 16px 6px;position:relative}
+header{padding:calc(20px + env(safe-area-inset-top)) 16px 0;position:relative}
 .top{padding-top:.75rem;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .brand{color:var(--mocha);line-height:.8;text-decoration:none;display:inline-block}
-.brand b{display:block;font:700 clamp(52px,15vw,84px)/.9 var(--display);letter-spacing:.01em}
-.brand i{display:block;font:400 clamp(58px,17vw,96px)/.6 var(--script);font-style:normal;margin:-6px 0 0 8px;white-space:nowrap}
-.brand svg{width:46px;height:46px;vertical-align:-6px;margin-left:-4px}
+.brand b{display:block;font:700 clamp(40px,12vw,84px)/.9 var(--display);letter-spacing:.01em}
+.brand i{display:block;font:400 clamp(46px,13.5vw,96px)/.6 var(--script);font-style:normal;margin:-6px 0 0 8px;white-space:nowrap}
+.brand svg{width:clamp(34px,10vw,46px);height:clamp(34px,10vw,46px);vertical-align:-6px;margin-left:-4px}
 .lang{display:inline-flex;border:2px solid var(--mocha);border-radius:999px;overflow:hidden;flex:none;margin-top:6px}
 .lang button{border:0;background:transparent;padding:8px 14px;min-height:40px;font-weight:700;font-size:14px;color:var(--mocha);cursor:pointer}
 .lang button[aria-pressed="true"]{background:var(--mocha);color:var(--cream)}
 
 /* Hero */
-.hero{display:grid;gap:22px;padding:26px 0 8px}
-.hero h1{font:700 clamp(40px,11vw,64px)/.95 var(--display);color:var(--mocha);text-transform:uppercase;margin:0}
-.hero p.lede{font-weight:700;color:var(--mocha);font-size:18px;margin:12px 0 0}
+.hero{padding:16px 0 0}
+.hero h1{font:700 clamp(30px,8.6vw,64px)/.95 var(--display);color:var(--mocha);text-transform:uppercase;margin:0}
+.hero p.lede{font-weight:700;color:var(--mocha);font-size:15px;margin:8px 0 0}
 .frame{background:var(--taupe);border-radius:22px;padding:18px}
 .frame .ph{border:5px solid #fff;border-radius:14px;overflow:hidden;background:var(--taupe-lt);box-shadow:0 2px 10px rgba(69,44,39,.12)}
-.hero .frame{max-width:340px;justify-self:center;width:78%}
-.hero .frame img{aspect-ratio:3/4;object-fit:cover;width:100%}
 
 /* Deadline */
-.deadline{border-top:6px solid var(--mocha);margin-top:22px;padding:16px 4px 4px}
-.deadline .when{font-size:17px;color:var(--mocha);margin:0}
-.deadline .when strong{display:block;font:700 22px/1.2 var(--display);text-transform:uppercase;letter-spacing:.02em}
-.count{display:inline-block;margin-top:10px;background:var(--mocha);color:var(--cream);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
+.deadline{border-top:5px solid var(--mocha);margin-top:12px;padding:10px 2px 0}
+.deadline .when{font-size:15px;color:var(--mocha);margin:0}
+.deadline .when strong{display:block;font:700 18px/1.2 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.count{display:inline-block;margin:8px 10px 0 0;background:var(--mocha);color:var(--cream);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
 .closed .count{background:var(--warn)}
-.week{font-size:14px;color:var(--muted);margin:8px 0 0}
+.week{display:inline-block;font-size:13px;color:var(--muted);margin:8px 0 0}
 
 /* Menu */
-h2{font:700 clamp(30px,8vw,40px)/1 var(--display);color:var(--mocha);text-transform:uppercase;margin:40px 0 6px}
-h2::after{content:"";display:block;width:120px;height:5px;background:var(--mocha);margin-top:10px}
-.grid{display:grid;gap:18px;margin-top:20px;grid-template-columns:1fr 1fr}
+h2{font:700 clamp(26px,7vw,40px)/1 var(--display);color:var(--mocha);text-transform:uppercase;margin:24px 0 4px}
+h2::after{content:"";display:block;width:100px;height:4px;background:var(--mocha);margin-top:8px}
+.grid{display:grid;gap:14px;margin-top:14px;grid-template-columns:1fr 1fr}
 .card{background:var(--paper);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 3px rgba(69,44,39,.1)}
 .card .frame{padding:8px;border-radius:0}
 .card .frame .ph{border-width:3px;border-radius:10px}
@@ -80,6 +95,21 @@ h2::after{content:"";display:block;width:120px;height:5px;background:var(--mocha
 .qty button:disabled{opacity:.35;cursor:not-allowed}
 .qty output{min-width:20px;text-align:center;font-weight:700}
 .card.in{outline:3px solid var(--mocha)}
+.zoom{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in;position:relative}
+.zoom::after{content:"";position:absolute;right:6px;bottom:6px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.85) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E3F39' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6'/%3E%3Cpath d='M15 15l5 5M10.5 8v5M8 10.5h5'/%3E%3C/svg%3E") no-repeat center/16px}
+.upsell .zoom{width:auto}.upsell .zoom::after{display:none}
+dialog{border:0;padding:0;background:transparent;max-width:min(94vw,720px);width:100%}
+dialog::backdrop{background:rgba(40,25,22,.82)}
+.lb figure{margin:0;background:var(--paper);border-radius:18px;overflow:hidden}
+.lb img{width:100%;max-height:78vh;object-fit:contain;background:#000}
+.lb figcaption{padding:12px 16px;font-weight:600;display:flex;justify-content:space-between;gap:10px}
+.x{position:absolute;top:10px;right:10px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);font-size:26px;line-height:1;color:var(--mocha-dk);cursor:pointer}
+.ask .box{background:var(--paper);border-radius:22px;padding:22px 18px 18px;text-align:center;max-width:420px;margin:0 auto}
+.ask img{width:120px;height:120px;object-fit:cover;border-radius:16px;margin:0 auto 12px;border:4px solid #fff;box-shadow:0 0 0 3px var(--taupe)}
+.ask h3{font:700 22px/1.15 var(--display);color:var(--mocha);text-transform:uppercase;margin:0 0 6px}
+.ask p{margin:0;color:var(--muted)}
+.ask .btn{margin-top:16px}
+.ask .btn2{display:block;width:100%;margin-top:8px;border:0;background:none;color:var(--mocha);font-weight:600;padding:12px;min-height:44px;cursor:pointer;text-decoration:underline}
 
 /* Order */
 .order{background:var(--paper);border-radius:22px;padding:20px 16px;margin-top:20px;box-shadow:0 1px 3px rgba(69,44,39,.1)}
@@ -119,8 +149,13 @@ footer a{color:var(--mocha);font-weight:600}
 
 @media (min-width:760px){
   body{padding-bottom:0}
-  .hero{grid-template-columns:1.1fr .9fr;align-items:center}
-  .hero .frame{width:100%}
+  header{padding-top:calc(40px + env(safe-area-inset-top))}
+  .brand b{font-size:84px}.brand i{font-size:96px}
+  .hero{padding-top:26px;max-width:640px}
+  .hero h1{font-size:64px}.hero p.lede{font-size:18px;margin-top:12px}
+  .deadline{margin-top:22px;padding-top:16px;border-top-width:6px}
+  .deadline .when{font-size:17px}.deadline .when strong{font-size:22px}
+  h2{margin-top:40px}
   .grid{grid-template-columns:repeat(3,1fr);gap:22px}
   .card h3{font-size:17px}
   .card .desc{display:block}
@@ -158,12 +193,6 @@ html{scroll-behavior:smooth}
         <p class="week" id="week"></p>
       </div>
     </div>
-    <div class="frame"><div class="ph">
-      <picture>
-        <source type="image/webp" srcset="img/panecitos-bag-480.webp 360w, img/panecitos-bag-960.webp 720w" sizes="(min-width: 760px) 340px, 70vw">
-        <img src="img/panecitos-bag-480.jpg" width="360" height="480" alt="Bags of homemade panecitos and wafers" fetchpriority="high">
-      </picture>
-    </div></div>
   </section>
 
   <div class="layout">
@@ -209,6 +238,21 @@ html{scroll-behavior:smooth}
   <p><a href="img/flyer.webp" target="_blank" rel="noopener" data-t="flyer">See this week's flyer</a></p>
   <p>&copy; Simply Kind Loaf</p>
 </footer>
+
+<dialog class="lb" id="lb" aria-label="Photo">
+  <button class="x" type="button" data-close aria-label="Close">×</button>
+  <figure><img id="lbImg" alt="" width="960" height="720"><figcaption><span id="lbName"></span><span id="lbPrice"></span></figcaption></figure>
+</dialog>
+
+<dialog class="ask" id="ask" aria-labelledby="askTitle">
+  <div class="box">
+    <img id="askImg" alt="" width="120" height="120">
+    <h3 id="askTitle"></h3>
+    <p id="askText"></p>
+    <button class="btn" type="button" id="askYes"></button>
+    <button class="btn2" type="button" id="askNo"></button>
+  </div>
+</dialog>
 
 <div class="bar" id="bar" aria-hidden="true">
   <span id="barText"></span>

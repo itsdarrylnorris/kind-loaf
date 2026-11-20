@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://itsdarrylnorris.github.io/kind-loaf/sitemap.xml
