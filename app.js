@@ -132,26 +132,26 @@
     (i.tags || []).forEach(function (tg) { if (!t.tag[tg]) return; (DIET.indexOf(tg) >= 0 ? d : c).push(t.tag[tg]); });
     return (c.length ? t.contains + ": " + c.join(", ") : "") + (c.length && d.length ? " · " : "") + (d.length ? d.join(", ") : "");
   }
+  // Photos: square crops (sq160/sq320/sq480) for cards and thumbnails, -960 for the enlarged view
+  function sqSet(i) { return "img/" + i.img + "-sq160.webp 160w, img/" + i.img + "-sq320.webp 320w, img/" + i.img + "-sq480.webp 480w"; }
   function thumb(i, size) {
-    return '<picture><source type="image/webp" srcset="img/' + i.img + '-480.webp"><img src="img/' + i.img + '-480.jpg" alt="" width="' +
-      size + '" height="' + size + '" loading="lazy" decoding="async"></picture>';
+    return '<img src="img/' + i.img + '-sq160.webp" alt="" width="' + size + '" height="' + size + '" loading="lazy" decoding="async">';
+  }
+  function img(i, eager, sizes, alt) {
+    return '<img src="img/' + i.img + '-sq320.webp" srcset="' + sqSet(i) + '" sizes="' + (sizes || "(min-width: 760px) 190px, calc(50vw - 45px)") +
+      '" width="320" height="320" ' + (eager ? (eager === 2 ? 'fetchpriority="high"' : "") : 'loading="lazy"') + ' decoding="async" alt="' + (alt === undefined ? i.name[lang] : alt) + '">';
   }
 
-  function img(i, eager) {
-    var b = "img/" + i.img;
-    return '<picture><source type="image/webp" srcset="' + b + '-480.webp 480w, ' + b + '-960.webp 960w" ' +
-      'sizes="(min-width: 760px) 220px, 46vw">' +
-      '<img src="' + b + '-480.jpg" width="' + i.w + '" height="' + i.h + '" ' +
-      (eager ? 'fetchpriority="high"' : 'loading="lazy" decoding="async"') + ' alt="' + i.name[lang] + '"></picture>';
-  }
-
-  function renderMenu() {
+  function menuHtml() {
     var t = T[lang], html = { bread: "", sweet: "", bundle: "" };
-    bundles.forEach(function (b) {
+    bundles.forEach(function (b, bn) {
       var q = cart[b.id] || 0;
       html.bundle += '<article class="card bundle' + (q ? " in" : "") + '" data-id="' + b.id + '">' +
         '<div class="frame"><button type="button" class="zoom collage n' + Math.min(b.parts.length, 4) + '" data-zoom="' + b.id + '" aria-label="' + t.view + ': ' + b.name[lang] + '">' +
-        b.parts.slice(0, 4).map(function (p) { return '<span>' + thumb(p.item, 240) + '</span>'; }).join("") + '</button>' +
+        b.parts.slice(0, 4).map(function (p, k) {
+          var big = b.parts.length === 3 && k === 0;
+          return '<span>' + img(p.item, 0, big ? "(min-width: 760px) 95px, calc(25vw - 23px)" : "(min-width: 760px) 95px, calc(25vw - 23px)", "") + '</span>';
+        }).join("") + '</button>' +
         '<span class="save">' + t.save(money(b.value - b.price)) + '</span></div>' +
         '<div class="body"><h3>' + b.name[lang] + '</h3><div class="unit">' + t.includes + ': ' + b.unit[lang] + '</div>' +
         '<p class="desc">' + b.desc[lang] + '</p>' + tagList(b) +
@@ -163,7 +163,7 @@
     items.forEach(function (i, n) {
       var q = cart[i.id] || 0;
       html[i.category] += '<article class="card' + (q ? " in" : "") + '" data-id="' + i.id + '">' +
-        '<div class="frame"><div class="ph"><button type="button" class="zoom" data-zoom="' + i.id + '" aria-label="' + t.view + ': ' + i.name[lang] + '">' + img(i, n < 2) + '</button></div></div>' +
+        '<div class="frame"><div class="ph"><button type="button" class="zoom" data-zoom="' + i.id + '" aria-label="' + t.view + ': ' + i.name[lang] + '">' + img(i, 0) + '</button></div></div>' +
         '<div class="body"><h3>' + i.name[lang] + '</h3><div class="unit">' + i.unit[lang] + '</div>' +
         '<p class="desc">' + i.desc[lang] + '</p>' + tagList(i) +
         '<div class="row"><span class="price">' + money(i.price) + '</span>' +
@@ -171,6 +171,11 @@
         '<output aria-live="polite">' + q + '</output>' +
         '<button type="button" data-d="1" aria-label="' + t.add + ': ' + i.name[lang] + '">+</button></div></div></div></article>';
     });
+    return html;
+  }
+
+  function renderMenu() {
+    var html = menuHtml();
     $("grid-bread").innerHTML = html.bread;
     $("grid-sweet").innerHTML = html.sweet;
     $("grid-bundle").innerHTML = html.bundle;
@@ -180,15 +185,20 @@
     $("h-sweet").parentNode.hidden = !html.sweet;
   }
 
-  function renderGuide() {
+  function renderGuide() { renderGuideText(); }
+  function guideHtml() {
     var t = T[lang], used = [];
     items.forEach(function (i) { (i.tags || []).forEach(function (tg) { if (ICON[tg] && used.indexOf(tg) < 0) used.push(tg); }); });
     var order = ["wheat", "dairy", "eggs", "soy", "sesame", "nuts", "peanuts"].concat(DIET);
     used.sort(function (a, b) { return order.indexOf(a) - order.indexOf(b); });
-    $("guideTitle").textContent = t.allergenGuide;
-    $("guideList").innerHTML = used.map(function (tg) {
+    return used.map(function (tg) {
       return '<li><span class="tg' + (DIET.indexOf(tg) >= 0 ? " diet" : "") + '">' + tagIcon(tg) + "</span>" + t.tag[tg] + "</li>";
     }).join("");
+  }
+  function renderGuideText() {
+    var t = T[lang];
+    $("guideTitle").textContent = t.allergenGuide;
+    $("guideList").innerHTML = guideHtml();
     $("guideKitchen").textContent = M.kitchen ? M.kitchen[lang] : "";
     $("cottage").textContent = M.cottage ? M.cottage[lang] : "";
   }
@@ -251,34 +261,41 @@
     var t = T[lang], ids = Object.keys(cart);
     $("lines").innerHTML = ids.length ? ids.map(function (id) {
       var i = byId[id];
-      return '<li><div class="lt"><span class="ln">' + cart[id] + " × " + i.name[lang] + '</span>' +
+      var trash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+      var one = cart[id] === 1;
+      return '<li><div class="lt"><span class="ln">' + i.name[lang] + '</span>' +
         '<span class="lp">' + money(cart[id] * i.price) + '</span>' +
-        '<button type="button" class="rm" data-rm="' + id + '" aria-label="' + t.rm + ": " + i.name[lang] + '">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>' + t.rm + '</button></div>' +
+        '<div class="lq"><button type="button" data-lq="-1" data-id="' + id + '" aria-label="' + (one ? t.rm : t.remove) + ": " + i.name[lang] + '">' + (one ? trash : "−") + '</button>' +
+        '<output aria-label="' + i.name[lang] + '">' + cart[id] + '</output>' +
+        '<button type="button" data-lq="1" data-id="' + id + '" aria-label="' + t.add + ": " + i.name[lang] + '">+</button></div></div>' +
         '<button type="button" class="zoom lthumb" data-zoom="' + id + '" aria-label="' + t.view + ": " + i.name[lang] + '">' + thumb(i, 56) + "</button></li>";
     }).join("") : '<li class="empty">' + t.empty + "</li>";
     var s = totals();
     $("total").textContent = money(s.sum);
     $("barText").textContent = t.items(s.n) + " · " + money(s.sum);
-    $("bar").classList.toggle("show", s.n > 0 && isOpen());
-    $("bar").setAttribute("aria-hidden", s.n > 0 ? "false" : "true");
+    setBar(s.n > 0 && isOpen());
     renderUpsell();
+  }
+
+  function whenText() {
+    return " " + new Intl.DateTimeFormat(lang === "es" ? "es-MX" : "en-US", {
+      timeZone: TZ, weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit"
+    }).format(deadline) + " (" + T[lang].central + ")";
   }
 
   function renderText() {
     var t = T[lang];
     document.documentElement.lang = lang;
-    document.querySelectorAll("[data-t]").forEach(function (el) { el.textContent = t[el.getAttribute("data-t")]; });
+    // only touch text that actually changes, so the pre-rendered page is not repainted on load
+    var setText = function (el, v) { if (el.textContent !== v) el.textContent = v; };
+    document.querySelectorAll("[data-t]").forEach(function (el) { setText(el, t[el.getAttribute("data-t")]); });
     document.querySelectorAll("[data-tp]").forEach(function (el) { el.placeholder = t[el.getAttribute("data-tp")]; });
     document.querySelectorAll(".lang button").forEach(function (b) {
       b.setAttribute("aria-pressed", String(b.getAttribute("data-lang") === lang));
     });
-    var when = new Intl.DateTimeFormat(lang === "es" ? "es-MX" : "en-US", {
-      timeZone: TZ, weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit"
-    }).format(deadline);
-    $("when").textContent = " " + when + " (" + t.central + ")";
-    $("week").textContent = M.week[lang];
-    $("pickup").textContent = M.pickup ? M.pickup[lang] : "";
+    setText($("when"), whenText());
+    setText($("week"), M.week[lang]);
+    setText($("pickup"), M.pickup ? M.pickup[lang] : "");
   }
 
   function tick() {
@@ -290,11 +307,32 @@
     } else {
       $("count").textContent = t.closedTitle;
     }
-    document.querySelectorAll(".qty button, .rm, .upsell button[data-up], #form input, #form textarea, #send").forEach(function (el) { el.disabled = !open; });
-    if (!open) $("bar").classList.remove("show");
+    document.querySelectorAll(".qty button, .lq button, .upsell button[data-up], #form input, #form textarea, #send").forEach(function (el) { el.disabled = !open; });
+    if (!open) setBar(false);
   }
 
-  function renderAll() { renderText(); renderShare(); renderMenu(); renderOrder(); tick(); }
+  function setBar(show) {
+    var bar = $("bar");
+    bar.classList.toggle("show", show);
+    if (show) bar.removeAttribute("inert"); else bar.setAttribute("inert", "");
+  }
+
+  var first = true;
+  function renderAll() {
+    renderText(); renderShare();
+    // The HTML is pre-rendered in English with an empty cart; skip re-drawing it on first load if nothing differs
+    var pre = first && document.body.hasAttribute("data-pre") && lang === "en" && !Object.keys(cart).length;
+    if (!pre) renderMenu();
+    first = false;
+    renderOrder(); tick();
+  }
+
+  // Build step (build.mjs) uses these to pre-render the page
+  if (window.SKL_BUILD) {
+    window.SKL_BUILD = { menuHtml: menuHtml, guideHtml: guideHtml, whenText: whenText, items: items, bundles: bundles, T: T,
+      setLang: function (l) { lang = l; } };
+    return;
+  }
 
   function save() { store(cartKey, JSON.stringify(cart)); }
 
@@ -303,8 +341,14 @@
     var z = e.target.closest("[data-zoom]");
     if (z) { openPhoto(z.getAttribute("data-zoom")); return; }
     if (!isOpen()) return;
-    var rm = e.target.closest("[data-rm]");
-    if (rm) { setQty(rm.getAttribute("data-rm"), 0); return; }
+    var lq = e.target.closest("[data-lq]");
+    if (lq) {
+      var lid = lq.getAttribute("data-id");
+      setQty(lid, (cart[lid] || 0) + Number(lq.getAttribute("data-lq")));
+      var again = document.querySelector('[data-lq="' + lq.getAttribute("data-lq") + '"][data-id="' + lid + '"]');
+      if (again) again.focus(); // keep keyboard focus on the same button after the list redraws
+      return;
+    }
     var up = e.target.closest("[data-up]");
     if (up) { var uid = up.getAttribute("data-up"); setQty(uid, (cart[uid] || 0) + 1); return; }
     var b = e.target.closest(".qty button");
@@ -381,7 +425,7 @@
     if (u && !asked) {
       asked = true;
       var i = byId[u.id];
-      $("askImg").src = "img/" + i.img + "-480.webp";
+      $("askImg").src = "img/" + i.img + "-sq320.webp";
       $("askTitle").textContent = t.askTitle;
       $("askText").textContent = t.askText(i.name[lang]);
       $("askYes").textContent = t.askYes(money(i.price));

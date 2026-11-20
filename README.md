@@ -2,6 +2,8 @@
 
 Weekly menu and order page. Customers pick items, see the total, and send the order to the bakery on WhatsApp. Ordering locks automatically after the deadline.
 
+Live: https://itsdarrylnorris.github.io/kind-loaf/
+
 ## Every week (5 minutes)
 Open `menu.js` and change:
 1. `week`: the label in English and Spanish.
@@ -10,31 +12,45 @@ Open `menu.js` and change:
 3. `active: true/false` to show or hide items. Change `price` if needed.
 4. Check the allergen `tags` and the `bundles` at the bottom of the file.
 
-Then save and push (or edit the file directly on github.com and click "Commit changes").
-The site updates in about a minute.
+Then commit (you can edit the file directly on github.com and click "Commit changes").
+GitHub builds, checks and publishes the site in about 2 minutes. Watch it under the repo's **Actions** tab.
 
 ## Before going live
-- In `menu.js`, set `whatsapp` to the bakery's real number (digits only, starting with 1 for US).
-- Replace the placeholder prices.
+- Replace the placeholder prices and check the allergen tags against the real recipes.
 
-## Adding a new photo
+## Adding a new photo (Mac)
 ```sh
 ./compress.sh ~/Desktop/new-photo.jpeg new-item
 ```
-This creates `img/new-item-480.webp`, `img/new-item-960.webp` and `img/new-item-480.jpg`, each well under 100 KB.
-The script prints the width and height. In `menu.js`, add an item with `img: "new-item"` and those numbers as `w` and `h`.
+This makes small WebP versions in `img/` (square crops for the cards and a larger one for the enlarged view).
+In `menu.js`, add an item with `img: "new-item"`.
 
-## Files
-- `index.html`: page layout and styles
-- `menu.js`: this week's menu (the only file you edit weekly)
-- `app.js`: cart, language switch, deadline lock, WhatsApp message
-- `img/`: compressed photos
+## How the site stays fast (and how it's protected)
+`build.mjs` turns the source files into the published page in `dist/`:
+- pre-renders the menu into the HTML, so it shows instantly and works for search engines and AI agents
+- inlines all CSS and JavaScript and uses self-hosted fonts, so nothing blocks the first paint
+- writes `llms.txt`, `menu.json` and Schema.org menu data so AI agents can read the menu and prices
+
+Every push runs `.github/workflows/deploy.yml`:
+1. **Budgets** (`node build.mjs`) fail the build if a photo is over 100 KB (cards over 40 KB), a font is over 40 KB,
+   the page is over 45 KB gzipped, an image is missing size or alt text, or an external render-blocking file sneaks in.
+2. **Lighthouse** (`lighthouserc.json`, mobile, 3 runs) fails if Accessibility, Best Practices or SEO drop below 100,
+   and warns if Performance drops below 95. Reports are saved as a download on each Actions run.
+3. The site is only published if both pass, so a slow or inaccessible change never goes live.
 
 ## Preview locally
 ```sh
-python3 -m http.server 8765
+node build.mjs
+python3 -m http.server 8765 -d dist
 ```
 Then open http://localhost:8765
+
+## Files
+- `menu.js`: this week's menu (the only file you edit weekly)
+- `index.html`: page layout and styles (template)
+- `app.js`: cart, language switch, deadline lock, upsell, WhatsApp message
+- `build.mjs`: builds `dist/` and checks budgets
+- `img/`, `fonts/`: compressed photos and self-hosted fonts
 
 ## Note
 The deadline lock runs in the visitor's browser. Each WhatsApp order includes the time it was sent, so a late order is easy to spot.

@@ -1,0 +1,51 @@
+name: Build, check and deploy
+
+# Runs on every change to main (including edits made on github.com).
+# 1. node build.mjs  -> builds dist/ and fails if a photo, font or the page goes over budget
+# 2. Lighthouse      -> fails if Accessibility, Best Practices or SEO drop below 100
+# 3. Deploys to GitHub Pages only if both pass.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build and check budgets
+        run: node build.mjs
+      - name: Lighthouse (mobile)
+        run: npx -y @lhci/cli@0.14.0 autorun
+      - name: Save Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

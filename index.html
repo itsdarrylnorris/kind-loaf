@@ -28,11 +28,11 @@
 {"@context":"https://schema.org","@type":"Bakery","name":"Simply Kind Loaf","alternateName":"SKL","url":"https://itsdarrylnorris.github.io/kind-loaf/","image":"https://itsdarrylnorris.github.io/kind-loaf/img/og.jpg","logo":"https://itsdarrylnorris.github.io/kind-loaf/apple-touch-icon.png","description":"Homemade panecitos, sourdough wafers and sweet bites, baked fresh every week and ordered on WhatsApp.","telephone":"+1-469-835-9836","servesCuisine":["Bakery","Bread","Cookies"],"priceRange":"$","knowsLanguage":["en","es"],"hasMenu":"https://itsdarrylnorris.github.io/kind-loaf/#h-bread","potentialAction":{"@type":"OrderAction","target":"https://itsdarrylnorris.github.io/kind-loaf/#order"}}
 </script>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Montserrat:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap&text=kindloaf%20">
+<link rel="preload" href="fonts/oswald-700.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+@font-face{font-family:"Montserrat";src:url(fonts/montserrat.woff2) format("woff2");font-weight:400 700;font-display:swap}
+@font-face{font-family:"Oswald";src:url(fonts/oswald-700.woff2) format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Sacramento";src:url(fonts/sacramento-logo.woff2) format("woff2");font-weight:400;font-display:swap}
 :root{
   --cream:#FBF7F2; --paper:#FFFFFF; --mocha:#5E3F39; --mocha-dk:#452C27; --taupe:#C9AFA6; --taupe-lt:#EBDDD6;
   --ink:#3B2723; --muted:#7A625C; --ok:#2F7A4B; --warn:#A8432F;
@@ -72,7 +72,7 @@ header{padding:calc(20px + env(safe-area-inset-top)) 16px 0;position:relative}
 .deadline{border-top:5px solid var(--mocha);margin-top:12px;padding:10px 2px 0}
 .deadline .when{font-size:15px;color:var(--mocha);margin:0}
 .deadline .when strong{display:block;font:700 18px/1.2 var(--display);text-transform:uppercase;letter-spacing:.02em}
-.count{display:inline-block;margin:8px 10px 0 0;background:var(--mocha);color:var(--cream);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
+.count{display:inline-block;min-height:32px;line-height:20px;margin:8px 10px 0 0;background:var(--mocha);color:var(--cream);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px}
 .closed .count{background:var(--warn)}
 .week{display:inline-block;font-size:13px;color:var(--muted);margin:8px 0 0}
 
@@ -170,9 +170,11 @@ textarea{min-height:80px;resize:vertical}
 .lt{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline}
 .ln{font-size:14px;font-weight:600}
 .lp{font-weight:700;color:var(--mocha)}
-.rm{grid-column:1;justify-self:start;display:inline-flex;align-items:center;gap:4px;border:0;background:none;padding:6px 0;min-height:32px;color:var(--warn);font-size:13px;font-weight:600;cursor:pointer}
-.rm svg{width:15px;height:15px}
-.rm:disabled{opacity:.4}
+.lq{grid-column:1 / -1;justify-self:start;display:inline-flex;align-items:center;margin-top:6px;border:2px solid var(--mocha);border-radius:999px}
+.lq button{width:40px;height:36px;border:0;background:none;color:var(--mocha);font-size:20px;font-weight:700;cursor:pointer;border-radius:999px;display:grid;place-items:center;touch-action:manipulation}
+.lq button svg{width:18px;height:18px}
+.lq button:disabled{opacity:.35;cursor:not-allowed}
+.lq output{min-width:22px;text-align:center;font-weight:700}
 .lthumb{width:56px;flex:none}
 .lthumb::after{display:none}
 .lthumb img{width:56px;height:56px;object-fit:cover;border-radius:10px;border:2px solid #fff;box-shadow:0 0 0 2px var(--taupe)}
@@ -184,13 +186,13 @@ textarea{min-height:80px;resize:vertical}
 .sbtns{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 .sb{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:999px;border:2px solid var(--mocha);background:var(--paper);color:var(--mocha);font-weight:700;font-size:14px;text-decoration:none;cursor:pointer}
 .sb svg{width:20px;height:20px}
-.sb.wa{background:#25D366;border-color:#25D366;color:#fff}
-.sb.fb{background:#1877F2;border-color:#1877F2;color:#fff}
+.sb.wa{background:#0B6B3A;border-color:#0B6B3A;color:#fff}
+.sb.fb{background:#1258C4;border-color:#1258C4;color:#fff}
 .sb[hidden]{display:none}
 
 /* Sticky bar */
-.bar{position:fixed;left:0;right:0;bottom:0;background:var(--mocha-dk);color:var(--cream);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:12px;transform:translateY(110%);transition:transform .25s;z-index:10}
-.bar.show{transform:none}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--mocha-dk);color:var(--cream);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:12px;transform:translateY(110%);visibility:hidden;transition:transform .25s,visibility .25s;z-index:10}
+.bar.show{transform:none;visibility:visible}
 .bar span{font-weight:600}
 .bar a{background:var(--cream);color:var(--mocha-dk);text-decoration:none;font-weight:700;border-radius:999px;padding:10px 18px;white-space:nowrap}
 
@@ -234,6 +236,7 @@ html{scroll-behavior:smooth}
 </header>
 
 <main class="wrap">
+  <noscript><p class="closedmsg" style="display:block">To order, please message us on WhatsApp: <a href="https://wa.me/14698359836">+1 (469) 835-9836</a>. Para ordenar, escríbenos por WhatsApp.</p></noscript>
   <section class="hero">
     <div>
       <h1 data-t="headline">Sweet deals are here!</h1>
@@ -248,13 +251,13 @@ html{scroll-behavior:smooth}
 
   <div class="layout">
     <div>
-      <section aria-labelledby="h-bread">
-        <h2 id="h-bread" data-t="breads">Breads</h2>
-        <div class="grid" id="grid-bread"></div>
-      </section>
       <section aria-labelledby="h-bundle">
         <h2 id="h-bundle" data-t="bundles">Bundles &amp; Deals</h2>
         <div class="grid" id="grid-bundle"></div>
+      </section>
+      <section aria-labelledby="h-bread">
+        <h2 id="h-bread" data-t="breads">Breads</h2>
+        <div class="grid" id="grid-bread"></div>
       </section>
       <section aria-labelledby="h-sweet">
         <h2 id="h-sweet" data-t="sweets">Wafers &amp; Sweets</h2>
@@ -326,7 +329,7 @@ html{scroll-behavior:smooth}
   </div>
 </dialog>
 
-<div class="bar" id="bar" aria-hidden="true">
+<div class="bar" id="bar" inert>
   <span id="barText"></span>
   <a href="#order" data-t="review">Review order</a>
 </div>
