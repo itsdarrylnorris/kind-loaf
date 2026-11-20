@@ -24,6 +24,13 @@
       upBread: "Add some fresh bread?", upSweet: "Add something sweet?", upPair: "Goes great with your order", upAdd: "+ Add",
       askTitle: "Before you send...", askText: function (n) { return "Are you sure you don't want to add " + n + "?"; },
       askYes: function (p) { return "Yes, add it (+" + p + ")"; }, askNo: "No thanks, send my order", view: "View photo", close: "Close",
+      bundles: "Bundles & Deals", save: function (m) { return "Save " + m; }, includes: "Includes", contains: "Contains", diet: "Diet",
+      rm: "Remove", allergenGuide: "Allergen & diet guide",
+      shareTitle: "Share with friends", shareText: "Know someone who loves fresh bread? Send them this week's menu.",
+      shareBtn: "Share", copy: "Copy link", copied: "Link copied!", email: "Email",
+      shareMsg: "Check out this week's menu from Simply Kind Loaf! Homemade panecitos and wafers. Order before Friday 8pm:",
+      tag: { wheat: "Wheat (gluten)", dairy: "Dairy", eggs: "Eggs", soy: "Soy", sesame: "Sesame", nuts: "Tree nuts", peanuts: "Peanuts",
+        vegetarian: "Vegetarian", vegan: "Vegan", glutenfree: "Gluten-free", dairyfree: "Dairy-free" },
       msgTitle: "New order", msgName: "Name", msgPhone: "Phone", msgNotes: "Notes", msgSent: "Sent"
     },
     es: {
@@ -45,6 +52,13 @@
       upBread: "¿Le agregas pan fresco?", upSweet: "¿Algo dulce para acompañar?", upPair: "Va perfecto con tu orden", upAdd: "+ Agregar",
       askTitle: "Antes de enviar...", askText: function (n) { return "¿Seguro que no quieres agregar " + n + "?"; },
       askYes: function (p) { return "Sí, agrégalo (+" + p + ")"; }, askNo: "No, gracias, enviar mi orden", view: "Ver foto", close: "Cerrar",
+      bundles: "Combos y ofertas", save: function (m) { return "Ahorra " + m; }, includes: "Incluye", contains: "Contiene", diet: "Dieta",
+      rm: "Quitar", allergenGuide: "Guía de alérgenos y dietas",
+      shareTitle: "Comparte con tus amigos", shareText: "¿Conoces a alguien que ama el pan fresco? Envíale el menú de esta semana.",
+      shareBtn: "Compartir", copy: "Copiar enlace", copied: "¡Enlace copiado!", email: "Correo",
+      shareMsg: "¡Mira el menú de esta semana de Simply Kind Loaf! Panecitos y wafers caseros. Ordena antes del viernes 8pm:",
+      tag: { wheat: "Trigo (gluten)", dairy: "Lácteos", eggs: "Huevo", soy: "Soya", sesame: "Ajonjolí", nuts: "Nueces", peanuts: "Cacahuate",
+        vegetarian: "Vegetariano", vegan: "Vegano", glutenfree: "Sin gluten", dairyfree: "Sin lácteos" },
       msgTitle: "Nueva orden", msgName: "Nombre", msgPhone: "Teléfono", msgNotes: "Notas", msgSent: "Enviada"
     }
   };
@@ -58,6 +72,26 @@
   var byId = {};
   items.forEach(function (i) { byId[i.id] = i; });
 
+  // Bundles become regular cart items with category "bundle". A bundle is hidden if any item in it is inactive.
+  var DIET = ["vegetarian", "vegan", "glutenfree", "dairyfree"];
+  var bundles = (M.bundles || []).filter(function (b) {
+    return b.active && b.items.every(function (x) { return byId[x[0]]; });
+  }).map(function (b) {
+    var parts = b.items.map(function (x) { return { item: byId[x[0]], qty: x[1] }; });
+    var value = parts.reduce(function (a, p) { return a + p.item.price * p.qty; }, 0);
+    var tags = [];
+    parts.forEach(function (p) { (p.item.tags || []).forEach(function (t) { if (tags.indexOf(t) < 0) tags.push(t); }); });
+    // a diet tag only applies to the bundle if every item has it
+    tags = tags.filter(function (t) { return DIET.indexOf(t) < 0 || parts.every(function (p) { return (p.item.tags || []).indexOf(t) >= 0; }); });
+    var ORDER = ["wheat", "dairy", "eggs", "soy", "sesame", "nuts", "peanuts"].concat(DIET);
+    tags.sort(function (x, y) { return ORDER.indexOf(x) - ORDER.indexOf(y); });
+    var list = function (l) { return parts.map(function (p) { return p.qty + "× " + p.item.name[l]; }).join(", "); };
+    return { id: b.id, category: "bundle", bundle: true, price: b.price, value: value, parts: parts, tags: tags,
+      img: parts[0].item.img, w: parts[0].item.w, h: parts[0].item.h, name: b.name, desc: b.desc,
+      unit: { en: list("en"), es: list("es") } };
+  });
+  bundles.forEach(function (b) { byId[b.id] = b; });
+
   // Cart is tied to this week's deadline so old carts don't carry over
   var cartKey = "skl-cart-" + M.deadline;
   var cart = {};
@@ -70,6 +104,39 @@
   };
   var isOpen = function () { return Date.now() < deadline; };
 
+  var ICON = {
+    wheat: '<path d="M12 21V8"/><path d="M12 8c-2.2-.8-3.4-2.8-3.4-5 2.2.8 3.4 2.8 3.4 5zm0 0c2.2-.8 3.4-2.8 3.4-5-2.2.8-3.4 2.8-3.4 5zM12 13.5c-2.2-.8-3.4-2.8-3.4-5 2.2.8 3.4 2.8 3.4 5zm0 0c2.2-.8 3.4-2.8 3.4-5-2.2.8-3.4 2.8-3.4 5zM12 19c-2.2-.8-3.4-2.8-3.4-5 2.2.8 3.4 2.8 3.4 5zm0 0c2.2-.8 3.4-2.8 3.4-5-2.2.8-3.4 2.8-3.4 5z"/>',
+    dairy: '<path d="M9 3h6M9.5 3v3L7 10v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V10l-2.5-4V3"/><path d="M7 13h10"/>',
+    eggs: '<path d="M12 3c3.6 0 6.5 6 6.5 10.5a6.5 6.5 0 0 1-13 0C5.5 9 8.4 3 12 3z"/>',
+    soy: '<path d="M4.5 19.5c0-8.5 6.5-15 15-15 0 8.5-6.5 15-15 15z"/><circle cx="9.5" cy="14.5" r="1.6"/><circle cx="14.5" cy="9.5" r="1.6"/>',
+    sesame: '<ellipse cx="7.5" cy="8" rx="2.2" ry="3.6" transform="rotate(-25 7.5 8)"/><ellipse cx="16.5" cy="8.5" rx="2.2" ry="3.6" transform="rotate(25 16.5 8.5)"/><ellipse cx="12" cy="16.5" rx="2.2" ry="3.6"/>',
+    nuts: '<path d="M5 10.5h14c0 5.5-3.2 9.5-7 9.5s-7-4-7-9.5z"/><path d="M4 10.5C4 7.2 7.6 5 12 5s8 2.2 8 5.5M12 5V2.5"/>',
+    peanuts: '<path d="M9 3.5a4.5 4.5 0 0 1 4.3 5.9c-.3 1 .3 2 1.2 2.4a4.5 4.5 0 1 1-6 5.3c-.2-1-1-1.7-2-1.8A4.5 4.5 0 0 1 9 3.5z"/>',
+    vegetarian: '<path d="M5 19C5 10.5 10.5 5 19 5c0 8.5-5.5 14-14 14z"/><path d="M5 19l8.5-8.5"/>',
+    vegan: '<path d="M5 19C5 10.5 10.5 5 19 5c0 8.5-5.5 14-14 14z"/><path d="M8 9l3 6 3-6"/>',
+    glutenfree: '<path d="M12 21V9M12 9c-2-.7-3-2.5-3-4.5 2 .7 3 2.5 3 4.5zm0 0c2-.7 3-2.5 3-4.5-2 .7-3 2.5-3 4.5z"/><path d="M4 4l16 16"/>',
+    dairyfree: '<path d="M9.5 3h5M10 3v3L8 10v10h8V10l-2-4V3"/><path d="M4 4l16 16"/>'
+  };
+  function tagIcon(tg) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICON[tg] || "") + "</svg>";
+  }
+  function tagList(i, cls) {
+    var t = T[lang], tags = (i.tags || []).filter(function (x) { return ICON[x]; });
+    if (!tags.length) return "";
+    return '<ul class="' + (cls || "tags") + '">' + tags.map(function (tg) {
+      return '<li class="tg' + (DIET.indexOf(tg) >= 0 ? " diet" : "") + '" title="' + t.tag[tg] + '">' + tagIcon(tg) + '<span class="sr">' + t.tag[tg] + "</span></li>";
+    }).join("") + "</ul>";
+  }
+  function tagText(i) {
+    var t = T[lang], c = [], d = [];
+    (i.tags || []).forEach(function (tg) { if (!t.tag[tg]) return; (DIET.indexOf(tg) >= 0 ? d : c).push(t.tag[tg]); });
+    return (c.length ? t.contains + ": " + c.join(", ") : "") + (c.length && d.length ? " · " : "") + (d.length ? d.join(", ") : "");
+  }
+  function thumb(i, size) {
+    return '<picture><source type="image/webp" srcset="img/' + i.img + '-480.webp"><img src="img/' + i.img + '-480.jpg" alt="" width="' +
+      size + '" height="' + size + '" loading="lazy" decoding="async"></picture>';
+  }
+
   function img(i, eager) {
     var b = "img/" + i.img;
     return '<picture><source type="image/webp" srcset="' + b + '-480.webp 480w, ' + b + '-960.webp 960w" ' +
@@ -79,13 +146,26 @@
   }
 
   function renderMenu() {
-    var t = T[lang], html = { bread: "", sweet: "" };
+    var t = T[lang], html = { bread: "", sweet: "", bundle: "" };
+    bundles.forEach(function (b) {
+      var q = cart[b.id] || 0;
+      html.bundle += '<article class="card bundle' + (q ? " in" : "") + '" data-id="' + b.id + '">' +
+        '<div class="frame"><button type="button" class="zoom collage n' + Math.min(b.parts.length, 4) + '" data-zoom="' + b.id + '" aria-label="' + t.view + ': ' + b.name[lang] + '">' +
+        b.parts.slice(0, 4).map(function (p) { return '<span>' + thumb(p.item, 240) + '</span>'; }).join("") + '</button>' +
+        '<span class="save">' + t.save(money(b.value - b.price)) + '</span></div>' +
+        '<div class="body"><h3>' + b.name[lang] + '</h3><div class="unit">' + t.includes + ': ' + b.unit[lang] + '</div>' +
+        '<p class="desc">' + b.desc[lang] + '</p>' + tagList(b) +
+        '<div class="row"><span class="price"><s>' + money(b.value) + '</s> ' + money(b.price) + '</span>' +
+        '<div class="qty"><button type="button" data-d="-1" aria-label="' + t.remove + ': ' + b.name[lang] + '">−</button>' +
+        '<output aria-live="polite">' + q + '</output>' +
+        '<button type="button" data-d="1" aria-label="' + t.add + ': ' + b.name[lang] + '">+</button></div></div></div></article>';
+    });
     items.forEach(function (i, n) {
       var q = cart[i.id] || 0;
       html[i.category] += '<article class="card' + (q ? " in" : "") + '" data-id="' + i.id + '">' +
         '<div class="frame"><div class="ph"><button type="button" class="zoom" data-zoom="' + i.id + '" aria-label="' + t.view + ': ' + i.name[lang] + '">' + img(i, n < 2) + '</button></div></div>' +
         '<div class="body"><h3>' + i.name[lang] + '</h3><div class="unit">' + i.unit[lang] + '</div>' +
-        '<p class="desc">' + i.desc[lang] + '</p>' +
+        '<p class="desc">' + i.desc[lang] + '</p>' + tagList(i) +
         '<div class="row"><span class="price">' + money(i.price) + '</span>' +
         '<div class="qty"><button type="button" data-d="-1" aria-label="' + t.remove + ': ' + i.name[lang] + '">−</button>' +
         '<output aria-live="polite">' + q + '</output>' +
@@ -93,8 +173,24 @@
     });
     $("grid-bread").innerHTML = html.bread;
     $("grid-sweet").innerHTML = html.sweet;
+    $("grid-bundle").innerHTML = html.bundle;
+    $("h-bundle").parentNode.hidden = !html.bundle;
+    renderGuide();
     $("h-bread").parentNode.hidden = !html.bread;
     $("h-sweet").parentNode.hidden = !html.sweet;
+  }
+
+  function renderGuide() {
+    var t = T[lang], used = [];
+    items.forEach(function (i) { (i.tags || []).forEach(function (tg) { if (ICON[tg] && used.indexOf(tg) < 0) used.push(tg); }); });
+    var order = ["wheat", "dairy", "eggs", "soy", "sesame", "nuts", "peanuts"].concat(DIET);
+    used.sort(function (a, b) { return order.indexOf(a) - order.indexOf(b); });
+    $("guideTitle").textContent = t.allergenGuide;
+    $("guideList").innerHTML = used.map(function (tg) {
+      return '<li><span class="tg' + (DIET.indexOf(tg) >= 0 ? " diet" : "") + '">' + tagIcon(tg) + "</span>" + t.tag[tg] + "</li>";
+    }).join("");
+    $("guideKitchen").textContent = M.kitchen ? M.kitchen[lang] : "";
+    $("cottage").textContent = M.cottage ? M.cottage[lang] : "";
   }
 
   function totals() {
@@ -115,7 +211,10 @@
       (byId[id].pairs || []).forEach(function (p) { if (byId[p] && !cart[p] && cands.indexOf(p) < 0) cands.push(p); });
     });
     var has = {};
-    ids.forEach(function (id) { has[byId[id].category] = true; });
+    ids.forEach(function (id) {
+      var i = byId[id];
+      if (i.bundle) i.parts.forEach(function (p) { has[p.item.category] = true; }); else has[i.category] = true;
+    });
     var missing = !has.bread ? "bread" : !has.sweet ? "sweet" : null;
     if (missing) {
       var m = cands.filter(function (id) { return byId[id].category === missing; })[0] ||
@@ -152,7 +251,11 @@
     var t = T[lang], ids = Object.keys(cart);
     $("lines").innerHTML = ids.length ? ids.map(function (id) {
       var i = byId[id];
-      return "<li><span>" + cart[id] + " × " + i.name[lang] + "</span><span>" + money(cart[id] * i.price) + "</span></li>";
+      return '<li><div class="lt"><span class="ln">' + cart[id] + " × " + i.name[lang] + '</span>' +
+        '<span class="lp">' + money(cart[id] * i.price) + '</span>' +
+        '<button type="button" class="rm" data-rm="' + id + '" aria-label="' + t.rm + ": " + i.name[lang] + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>' + t.rm + '</button></div>' +
+        '<button type="button" class="zoom lthumb" data-zoom="' + id + '" aria-label="' + t.view + ": " + i.name[lang] + '">' + thumb(i, 56) + "</button></li>";
     }).join("") : '<li class="empty">' + t.empty + "</li>";
     var s = totals();
     $("total").textContent = money(s.sum);
@@ -187,11 +290,11 @@
     } else {
       $("count").textContent = t.closedTitle;
     }
-    document.querySelectorAll(".qty button, #form input, #form textarea, #send").forEach(function (el) { el.disabled = !open; });
+    document.querySelectorAll(".qty button, .rm, .upsell button[data-up], #form input, #form textarea, #send").forEach(function (el) { el.disabled = !open; });
     if (!open) $("bar").classList.remove("show");
   }
 
-  function renderAll() { renderText(); renderMenu(); renderOrder(); tick(); }
+  function renderAll() { renderText(); renderShare(); renderMenu(); renderOrder(); tick(); }
 
   function save() { store(cartKey, JSON.stringify(cart)); }
 
@@ -200,6 +303,8 @@
     var z = e.target.closest("[data-zoom]");
     if (z) { openPhoto(z.getAttribute("data-zoom")); return; }
     if (!isOpen()) return;
+    var rm = e.target.closest("[data-rm]");
+    if (rm) { setQty(rm.getAttribute("data-rm"), 0); return; }
     var up = e.target.closest("[data-up]");
     if (up) { var uid = up.getAttribute("data-up"); setQty(uid, (cart[uid] || 0) + 1); return; }
     var b = e.target.closest(".qty button");
@@ -222,6 +327,7 @@
     $("lbImg").alt = i.name[lang];
     $("lbName").textContent = i.name[lang];
     $("lbPrice").textContent = money(i.price);
+    $("lbInfo").textContent = (i.bundle ? T[lang].includes + ": " + i.unit[lang] + ". " : i.desc[lang] + " ") + tagText(i);
     d.querySelector(".x").setAttribute("aria-label", T[lang].close);
     d.showModal();
   }
@@ -281,6 +387,31 @@
       return;
     }
     sendOrder();
+  });
+
+  // Share buttons
+  var pageUrl = (document.querySelector('link[rel="canonical"]') || {}).href || location.href.split(/[?#]/)[0];
+  function renderShare() {
+    var t = T[lang], text = t.shareMsg + " " + pageUrl;
+    $("shWa").href = "https://wa.me/?text=" + encodeURIComponent(text);
+    $("shFb").href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(pageUrl);
+    $("shMail").href = "mailto:?subject=" + encodeURIComponent("Simply Kind Loaf") + "&body=" + encodeURIComponent(text);
+    $("shCopy").querySelector("span").textContent = t.copy;
+    $("shNative").querySelector("span").textContent = t.shareBtn;
+    $("shMail").querySelector("span").textContent = t.email;
+  }
+  if (navigator.share) $("shNative").hidden = false;
+  $("shNative").addEventListener("click", function () {
+    navigator.share({ title: "Simply Kind Loaf", text: T[lang].shareMsg, url: pageUrl }).catch(function () {});
+  });
+  $("shCopy").addEventListener("click", function () {
+    var b = $("shCopy"), done = function () {
+      b.querySelector("span").textContent = T[lang].copied;
+      setTimeout(function () { b.querySelector("span").textContent = T[lang].copy; }, 2000);
+    };
+    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(pageUrl).then(done, function () {}); return; }
+    var ta = document.createElement("textarea"); ta.value = pageUrl; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
   });
 
   renderAll();

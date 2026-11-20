@@ -137,6 +137,54 @@ textarea{min-height:80px;resize:vertical}
 .closedmsg{display:none;background:var(--taupe-lt);color:var(--mocha-dk);border-radius:14px;padding:14px;font-weight:600;margin-top:16px}
 .closed .closedmsg{display:block}
 
+/* Tags */
+.tags{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:4px}
+.tg{width:26px;height:26px;border-radius:50%;background:var(--taupe-lt);color:var(--mocha);display:inline-grid;place-items:center;flex:none}
+.tg svg{width:16px;height:16px}
+.tg.diet{background:#E3EFE6;color:var(--ok)}
+.guide{margin-top:24px;background:var(--paper);border-radius:16px;padding:4px 16px;box-shadow:0 1px 3px rgba(69,44,39,.1)}
+.guide summary{font:700 16px/1 var(--display);text-transform:uppercase;letter-spacing:.03em;color:var(--mocha);padding:14px 0;cursor:pointer;min-height:44px}
+.guide ul{list-style:none;padding:0;margin:4px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.guide li{display:flex;align-items:center;gap:8px;font-size:14px}
+.guide p{font-size:13px;color:var(--muted);margin:12px 0 14px}
+.lbinfo{margin:0;padding:0 16px 14px;font-size:14px;color:var(--muted)}
+.cottage{max-width:560px;margin:0 auto 10px;font-size:12px}
+
+/* Bundles */
+.bundle .frame{position:relative}
+.collage{display:grid;gap:3px;border:3px solid #fff;border-radius:10px;overflow:hidden;aspect-ratio:1/1;background:#fff}
+.collage.n2{grid-template-columns:1fr 1fr}
+.collage.n3{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.collage.n3 span:first-child{grid-row:span 2}
+.collage.n4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.collage span{display:block;overflow:hidden;min-height:0}
+.collage img{width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+.save{position:absolute;top:14px;left:14px;background:var(--mocha);color:var(--cream);font-weight:700;font-size:12px;border-radius:999px;padding:4px 10px}
+.price s{font:400 13px var(--body);color:var(--muted);display:block}
+
+/* Order lines */
+.lines li{align-items:center}
+.lt{flex:1;min-width:0;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:baseline}
+.ln{font-size:14px;font-weight:600}
+.lp{font-weight:700;color:var(--mocha)}
+.rm{grid-column:1;justify-self:start;display:inline-flex;align-items:center;gap:4px;border:0;background:none;padding:6px 0;min-height:32px;color:var(--warn);font-size:13px;font-weight:600;cursor:pointer}
+.rm svg{width:15px;height:15px}
+.rm:disabled{opacity:.4}
+.lthumb{width:56px;flex:none}
+.lthumb::after{display:none}
+.lthumb img{width:56px;height:56px;object-fit:cover;border-radius:10px;border:2px solid #fff;box-shadow:0 0 0 2px var(--taupe)}
+
+/* Share */
+.share{text-align:center;margin-top:8px}
+.share h2::after{margin:8px auto 0}
+.share p{color:var(--muted);margin:10px 0 16px}
+.sbtns{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.sb{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 16px;border-radius:999px;border:2px solid var(--mocha);background:var(--paper);color:var(--mocha);font-weight:700;font-size:14px;text-decoration:none;cursor:pointer}
+.sb svg{width:20px;height:20px}
+.sb.wa{background:#25D366;border-color:#25D366;color:#fff}
+.sb.fb{background:#1877F2;border-color:#1877F2;color:#fff}
+.sb[hidden]{display:none}
+
 /* Sticky bar */
 .bar{position:fixed;left:0;right:0;bottom:0;background:var(--mocha-dk);color:var(--cream);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;gap:12px;transform:translateY(110%);transition:transform .25s;z-index:10}
 .bar.show{transform:none}
@@ -201,10 +249,19 @@ html{scroll-behavior:smooth}
         <h2 id="h-bread" data-t="breads">Breads</h2>
         <div class="grid" id="grid-bread"></div>
       </section>
+      <section aria-labelledby="h-bundle">
+        <h2 id="h-bundle" data-t="bundles">Bundles &amp; Deals</h2>
+        <div class="grid" id="grid-bundle"></div>
+      </section>
       <section aria-labelledby="h-sweet">
         <h2 id="h-sweet" data-t="sweets">Wafers &amp; Sweets</h2>
         <div class="grid" id="grid-sweet"></div>
       </section>
+      <details class="guide">
+        <summary id="guideTitle">Allergen &amp; diet guide</summary>
+        <ul id="guideList"></ul>
+        <p id="guideKitchen"></p>
+      </details>
     </div>
 
     <div class="order-col">
@@ -231,17 +288,29 @@ html{scroll-behavior:smooth}
       </section>
     </div>
   </div>
+  <section class="share" aria-labelledby="h-share">
+    <h2 id="h-share" data-t="shareTitle">Share with friends</h2>
+    <p data-t="shareText">Know someone who loves fresh bread? Send them this week's menu.</p>
+    <div class="sbtns">
+      <button type="button" class="sb" id="shNative" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg><span>Share</span></button>
+      <a class="sb wa" id="shWa" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg><span>WhatsApp</span></a>
+      <a class="sb fb" id="shFb" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path fill="currentColor" stroke="none" d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.5 1.6-1.5h1.7V4.4c-.3 0-1.3-.1-2.5-.1-2.4 0-4.1 1.5-4.1 4.2v2.3H7.5V14h2.7v8z"/></svg><span>Facebook</span></a>
+      <a class="sb" id="shMail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg><span>Email</span></a>
+      <button type="button" class="sb" id="shCopy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Copy link</span></button>
+    </div>
+  </section>
 </main>
 
 <footer class="wrap">
   <svg class="skl" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="none" stroke="#5E3F39" stroke-width="2"/><text x="50" y="60" text-anchor="middle" font-family="Montserrat,sans-serif" font-size="28" fill="#3B2723">SKL</text></svg>
   <p><a href="img/flyer.webp" target="_blank" rel="noopener" data-t="flyer">See this week's flyer</a></p>
+  <p class="cottage" id="cottage"></p>
   <p>&copy; Simply Kind Loaf</p>
 </footer>
 
 <dialog class="lb" id="lb" aria-label="Photo">
   <button class="x" type="button" data-close aria-label="Close">×</button>
-  <figure><img id="lbImg" alt="" width="960" height="720"><figcaption><span id="lbName"></span><span id="lbPrice"></span></figcaption></figure>
+  <figure><img id="lbImg" alt="" width="960" height="720"><figcaption><span id="lbName"></span><span id="lbPrice"></span></figcaption><p class="lbinfo" id="lbInfo"></p></figure>
 </dialog>
 
 <dialog class="ask" id="ask" aria-labelledby="askTitle">

@@ -8,6 +8,7 @@ Open `menu.js` and change:
 2. `deadline`: for example `"2026-11-27T20:00:00-06:00"` means Friday Nov 27 at 8pm Central.
    Use `-06:00` from November to mid March and `-05:00` from mid March to November (daylight time).
 3. `active: true/false` to show or hide items. Change `price` if needed.
+4. Check the allergen `tags` and the `bundles` at the bottom of the file.
 
 Then save and push (or edit the file directly on github.com and click "Commit changes").
 The site updates in about a minute.
