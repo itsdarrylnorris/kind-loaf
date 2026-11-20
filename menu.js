@@ -16,7 +16,7 @@ window.MENU = {
     en: "Pickup details will be confirmed on WhatsApp.",
     es: "Los detalles de entrega se confirman por WhatsApp."
   },
-  whatsapp: "15555555555", // bakery WhatsApp number, digits only with country code (1 for US)
+  whatsapp: "14698359836", // bakery WhatsApp number, digits only with country code (1 for US)
   hero: "panecitos-bag",
 
   items: [
