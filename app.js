@@ -238,14 +238,17 @@
   function renderUpsell() {
     var box = $("upsell"), u = pickUpsell(), t = T[lang];
     if (!u) { box.hidden = true; box.innerHTML = ""; return; }
-    var i = byId[u.id];
+    box.innerHTML = upsellHtml(u);
+    box.hidden = false;
+  }
+
+  function upsellHtml(u) {
+    var t = T[lang], i = byId[u.id];
     var head = u.kind === "bread" ? t.upBread : u.kind === "sweet" ? t.upSweet : t.upPair;
-    box.innerHTML = '<button type="button" class="zoom" data-zoom="' + i.id + '" aria-label="' + t.view + ': ' + i.name[lang] + '"><picture><source type="image/webp" srcset="img/' + i.img + '-480.webp"><img src="img/' + i.img +
-      '-480.jpg" alt="" width="64" height="64" loading="lazy" decoding="async"></picture></button>' +
+    return '<button type="button" class="zoom" data-zoom="' + i.id + '" aria-label="' + t.view + ': ' + i.name[lang] + '">' + thumb(i, 64) + '</button>' +
       '<div class="ut"><div class="uh">' + head + '</div><div class="un">' + i.name[lang] + '</div>' +
       '<div class="up">' + i.unit[lang] + ' · ' + money(i.price) + '</div></div>' +
-      '<button type="button" data-up="' + i.id + '">' + t.upAdd + '</button>';
-    box.hidden = false;
+      '<button type="button" class="upadd" data-up="' + i.id + '">' + t.upAdd + '</button>';
   }
 
   function setQty(id, q) {
@@ -257,19 +260,24 @@
     $("err").textContent = "";
   }
 
-  function renderOrder() {
-    var t = T[lang], ids = Object.keys(cart);
-    $("lines").innerHTML = ids.length ? ids.map(function (id) {
+  function linesHtml(c) {
+    var t = T[lang], ids = Object.keys(c);
+    return ids.length ? ids.map(function (id) {
       var i = byId[id];
       var trash = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
-      var one = cart[id] === 1;
+      var one = c[id] === 1;
       return '<li><div class="lt"><span class="ln">' + i.name[lang] + '</span>' +
-        '<span class="lp">' + money(cart[id] * i.price) + '</span>' +
+        '<span class="lp">' + money(c[id] * i.price) + '</span>' +
         '<div class="lq"><button type="button" data-lq="-1" data-id="' + id + '" aria-label="' + (one ? t.rm : t.remove) + ": " + i.name[lang] + '">' + (one ? trash : "−") + '</button>' +
-        '<output aria-label="' + i.name[lang] + '">' + cart[id] + '</output>' +
+        '<output aria-label="' + i.name[lang] + '">' + c[id] + '</output>' +
         '<button type="button" data-lq="1" data-id="' + id + '" aria-label="' + t.add + ": " + i.name[lang] + '">+</button></div></div>' +
         '<button type="button" class="zoom lthumb" data-zoom="' + id + '" aria-label="' + t.view + ": " + i.name[lang] + '">' + thumb(i, 56) + "</button></li>";
     }).join("") : '<li class="empty">' + t.empty + "</li>";
+  }
+
+  function renderOrder() {
+    var t = T[lang];
+    $("lines").innerHTML = linesHtml(cart);
     var s = totals();
     $("total").textContent = money(s.sum);
     $("barText").textContent = t.items(s.n) + " · " + money(s.sum);
@@ -329,7 +337,7 @@
 
   // Build step (build.mjs) uses these to pre-render the page
   if (window.SKL_BUILD) {
-    window.SKL_BUILD = { menuHtml: menuHtml, guideHtml: guideHtml, whenText: whenText, items: items, bundles: bundles, T: T,
+    window.SKL_BUILD = { menuHtml: menuHtml, guideHtml: guideHtml, upsellHtml: upsellHtml, linesHtml: linesHtml, whenText: whenText, items: items, bundles: bundles, T: T,
       setLang: function (l) { lang = l; } };
     return;
   }

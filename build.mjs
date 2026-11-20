@@ -174,6 +174,20 @@ for (const i of [...items, ...bundles.flatMap((b) => b.parts.map((p) => p.item))
   }
 }
 
+// Every image path the page can show (menu, cart lines, upsell, enlarged view, "are you sure" popup) must exist
+{
+  const all = [...items, ...bundles];
+  const everyCart = Object.fromEntries(all.map((i) => [i.id, 2]));
+  const m = B.menuHtml();
+  let shown = m.bundle + m.bread + m.sweet + B.linesHtml(everyCart);
+  for (const i of all) shown += B.upsellHtml({ id: i.id, kind: "pair" }) + ` img/${i.img}-960.webp img/${i.img}-sq320.webp`;
+  for (const ref of new Set(shown.match(/img\/[\w.-]+/g) || [])) {
+    if (!fs.existsSync(path.join(root, ref))) problems.push(`The page links to ${ref}, but that file does not exist`);
+  }
+}
+// Catch photo names from before the image change (-480 / .jpg) anywhere in the app code
+if (/-480\.(webp|jpg)|\.jpg["']/.test(appSrc)) problems.push("app.js still references old photo names (-480 / .jpg). Use thumb() or img().");
+
 if (problems.length) {
   console.error("\nBuild failed:\n - " + [...new Set(problems)].join("\n - ") + "\n");
   process.exit(1);
