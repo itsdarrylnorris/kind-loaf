@@ -147,7 +147,10 @@ textarea{min-height:80px;resize:vertical}
 .guide ul{list-style:none;padding:0;margin:4px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .guide li{display:flex;align-items:center;gap:8px;font-size:14px}
 .guide p{font-size:13px;color:var(--muted);margin:12px 0 14px}
-.lbinfo{margin:0;padding:0 16px 14px;font-size:14px;color:var(--muted)}
+.lbinfo{margin:0;padding:0 16px 10px;font-size:14px;color:var(--muted)}
+.lbtags{list-style:none;margin:0;padding:0 16px 16px;display:flex;flex-wrap:wrap;gap:6px}
+.lbtags li{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--mocha);background:var(--cream);border:1px solid var(--taupe-lt);border-radius:999px;padding:3px 10px 3px 3px}
+.lbtags[hidden]{display:none}
 .cottage{max-width:560px;margin:0 auto 10px;font-size:12px}
 
 /* Bundles */
@@ -310,7 +313,7 @@ html{scroll-behavior:smooth}
 
 <dialog class="lb" id="lb" aria-label="Photo">
   <button class="x" type="button" data-close aria-label="Close">×</button>
-  <figure><img id="lbImg" alt="" width="960" height="720"><figcaption><span id="lbName"></span><span id="lbPrice"></span></figcaption><p class="lbinfo" id="lbInfo"></p></figure>
+  <figure><img id="lbImg" alt="" width="960" height="720"><figcaption><span id="lbName"></span><span id="lbPrice"></span></figcaption><p class="lbinfo" id="lbInfo"></p><ul class="lbtags" id="lbTags"></ul></figure>
 </dialog>
 
 <dialog class="ask" id="ask" aria-labelledby="askTitle">

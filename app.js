@@ -327,7 +327,12 @@
     $("lbImg").alt = i.name[lang];
     $("lbName").textContent = i.name[lang];
     $("lbPrice").textContent = money(i.price);
-    $("lbInfo").textContent = (i.bundle ? T[lang].includes + ": " + i.unit[lang] + ". " : i.desc[lang] + " ") + tagText(i);
+    $("lbInfo").textContent = i.bundle ? T[lang].includes + ": " + i.unit[lang] + "." : i.desc[lang];
+    var tags = (i.tags || []).filter(function (tg) { return ICON[tg]; });
+    $("lbTags").innerHTML = tags.map(function (tg) {
+      return '<li><span class="tg' + (DIET.indexOf(tg) >= 0 ? " diet" : "") + '">' + tagIcon(tg) + "</span>" + T[lang].tag[tg] + "</li>";
+    }).join("");
+    $("lbTags").hidden = !tags.length;
     d.querySelector(".x").setAttribute("aria-label", T[lang].close);
     d.showModal();
   }
